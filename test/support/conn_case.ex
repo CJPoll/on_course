@@ -27,6 +27,7 @@ defmodule OnCourse.Web.ConnCase do
   end
 
 
+  @dialyzer [{:nowarn_function, '__ex_unit_setup_0': 1}]
   setup tags do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(OnCourse.Repo)
     unless tags[:async] do
