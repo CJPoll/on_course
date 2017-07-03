@@ -52,10 +52,10 @@ defmodule OnCourse.Accounts do
   @spec upsert_user(User.t, %{email: String.t, handle: String.t, avatar_url: String.t})
   :: {:ok, Ecto.Schema.t}
   | {:error, Ecto.Changeset.t}
-  def upsert_user(%User{} = user, %{email: email, handle: handle, avatar: avatar_url} = attrs) do
+  def upsert_user(%User{} = user, %{email: email, handle: handle, avatar: avatar} = attrs) do
     user
     |> User.changeset(attrs)
-    |> Repo.insert(on_conflict: [set: [email: email]], conflict_target: [:email])
+    |> Repo.insert(on_conflict: [set: [email: email, handle: handle, avatar: avatar, updated_at: DateTime.utc_now()]], conflict_target: [:email])
   end
 
   @doc """

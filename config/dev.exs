@@ -23,6 +23,16 @@ config :ueberauth, Ueberauth.Strategy.Github.OAuth,
   client_id: System.get_env("GITHUB_CLIENT_ID"),
   client_secret: System.get_env("GITHUB_CLIENT_SECRET")
 
+config :guardian, Guardian,
+  allowed_algos: ["HS512"], # optional
+  verify_module: Guardian.JWT,  # optional
+  issuer: "OnCourse",
+  ttl: { 30, :days  },
+  allowed_drift: 2000,
+  verify_issuer: true, # optional
+  secret_key: "gQfrBbbYqTmQ9mlYJPMGOs4veWCjb4nbShci6qAcVfaB9VNSZohuZ2BsfwRykN10",
+  serializer: OnCourse.GuardianSerializer
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed

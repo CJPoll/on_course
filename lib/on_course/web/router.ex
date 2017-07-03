@@ -10,7 +10,9 @@ defmodule OnCourse.Web.Router do
     plug Ueberauth
   end
 
-  pipeline :authenticated do
+  pipeline :authenticated_browser do
+    plug Guardian.Plug.VerifySession
+    plug Guardian.Plug.LoadResource
   end
 
   pipeline :api do
@@ -18,9 +20,10 @@ defmodule OnCourse.Web.Router do
   end
 
   scope "/", OnCourse.Web do
-    pipe_through [:browser, :authenticated] # Use the default browser stack
+    pipe_through [:browser, :authenticated_browser] # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", LandingController, :index
+    get "/dashboard", PageController, :dashboard
   end
 
   scope "/auth", OnCourse.Web do

@@ -25,6 +25,7 @@ defmodule OnCourse.Web do
 
       alias OnCourse.Accounts
       alias OnCourse.Accounts.User
+      alias OnCourse.Web.Endpoint
     end
   end
 

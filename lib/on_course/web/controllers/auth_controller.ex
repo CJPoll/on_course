@@ -22,7 +22,9 @@ defmodule OnCourse.Web.Auth.Controller do
       }
 
     with {:ok, %User{} = user} <- Accounts.upsert_user(%User{}, data |> IO.inspect) do
-      render(conn, OnCourse.Web.AuthView, "dashboard.html", user: user)
+      conn
+      |> Guardian.Plug.sign_in(user)
+      |> redirect(to: page_path(Endpoint, :dashboard))
     else
       {:error, cs} -> send_resp(conn, 500, "Update failed: #{inspect cs.errors}")
       _ -> send_resp(conn, 500, "Not sure what happened here ¯\_(ツ)_/¯")
