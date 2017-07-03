@@ -1,0 +1,17 @@
+<h1>
+  Auth Dashboard
+</h1>
+
+<div>
+  <div class="photo">
+    <img src="<%= @user.avatar %>" />
+  </div>
+
+  <div class="email">
+    <p><%= @user.email %></p>
+  </div>
+
+  <div class="handle">
+    <p><%= @user.handle %></p>
+  </div>
+</div>

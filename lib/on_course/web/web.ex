@@ -22,6 +22,9 @@ defmodule OnCourse.Web do
       import Plug.Conn
       import OnCourse.Web.Router.Helpers
       import OnCourse.Web.Gettext
+
+      alias OnCourse.Accounts
+      alias OnCourse.Accounts.User
     end
   end
 

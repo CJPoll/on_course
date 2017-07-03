@@ -7,6 +7,10 @@ defmodule OnCourse.Web.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug Ueberauth
+  end
+
+  pipeline :authenticated do
   end
 
   pipeline :api do
@@ -14,8 +18,15 @@ defmodule OnCourse.Web.Router do
   end
 
   scope "/", OnCourse.Web do
-    pipe_through :browser # Use the default browser stack
+    pipe_through [:browser, :authenticated] # Use the default browser stack
 
     get "/", PageController, :index
+  end
+
+  scope "/auth", OnCourse.Web do
+    pipe_through :browser # Use the default browser stack
+
+    get "/:provider", Auth.Controller, :request
+    get "/:provider/callback", Auth.Controller, :callback
   end
 end
