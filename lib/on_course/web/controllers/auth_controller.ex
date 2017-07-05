@@ -10,18 +10,9 @@ defmodule OnCourse.Web.Auth.Controller do
 
   @spec callback(Plug.Conn.t, ignored) :: Plug.Conn.t
   def callback(%Plug.Conn{assigns: %{ueberauth_auth: %{info: info}}} = conn, _params) do
-    email = info.email
-    handle = info.nickname
-    avatar = info.urls.avatar_url
+    data = %{email: info.email, handle: info.handle, avatar: info.urls.avatar_url}
 
-    data =
-      %{
-        email: email,
-        handle: handle,
-        avatar: avatar
-      }
-
-    with {:ok, %User{} = user} <- Accounts.upsert_user(%User{}, data |> IO.inspect) do
+    with {:ok, %User{} = user} <- Accounts.upsert_user(%User{}, data) do
       conn
       |> Guardian.Plug.sign_in(user)
       |> redirect(to: page_path(Endpoint, :dashboard))

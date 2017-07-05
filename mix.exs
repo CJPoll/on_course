@@ -27,6 +27,7 @@ defmodule OnCourse.Mixfile do
   defp deps do
     [{:cowboy, "~> 1.0"},
      {:dialyxir, "~> 0.5.0"},
+     {:ectoplasm, "~> 0.2.0"},
      {:gettext, "~> 0.11"},
      {:guardian, "~> 0.14.0"},
      {:phoenix, "~> 1.3.0-rc", override: true},
