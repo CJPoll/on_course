@@ -3,7 +3,7 @@ defmodule OnCourse.Repo.Migrations.CreateOnCourse.Accounts.User do
 
   def change do
     create table(:accounts_users) do
-      add :email, :string
+      add :email, :string, null: false
       add :avatar, :string
       add :handle, :string
 
