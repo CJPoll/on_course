@@ -4,7 +4,7 @@ defmodule OnCourse.Repo.Migrations.CreateOnCourse.Courses.Topic do
   def change do
     create table(:course_topics) do
       add :name, :string, null: false
-      add :course_id, references(:courses_courses, on_delete: :nothing), null: false
+      add :course_id, references(:courses_courses, on_delete: :delete_all), null: false
 
       timestamps()
     end
