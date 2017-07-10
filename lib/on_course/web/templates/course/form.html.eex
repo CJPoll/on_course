@@ -1,0 +1,9 @@
+<%= form_for @changeset, @action, [method: :post, csrf_token: true], fn(f) -> %>
+  <fieldset>
+    <legend>Name</legend>
+    <%= label(f, :name) %>
+    <%= text_input(f, :name) %>
+  </fieldset>
+
+  <%= submit "Submit" %>
+<% end %>

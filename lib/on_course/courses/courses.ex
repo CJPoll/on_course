@@ -19,6 +19,38 @@ defmodule OnCourse.Courses do
     |> Repo.insert
   end
 
+  @spec changeset_for(Course.t, %{}) :: Ecto.Changeset.t
+  def changeset_for(%Course{} = course, params) do
+    Course.changeset(course, params)
+  end
+
+  @spec find(Course.id) :: Course.t
+  def find(course_id) do
+    Repo.get(Course, course_id)
+  end
+
+  @spec owned_by(User.t | User.id) :: [Course.t]
+  def owned_by(%User{} = user) do
+    owned_by(user.id)
+  end
+
+  def owned_by(user_id) when is_binary(user_id) or is_integer(user_id) do
+    Course
+    |> Course.owned_by(user_id)
+    |> Repo.all
+  end
+
+  @spec enrolled(User.t | User.id) :: [Course.t]
+  def enrolled(%User{} = user) do
+    enrolled(user.id)
+  end
+
+  def enrolled(user_id) when is_binary(user_id) or is_integer(user_id) do
+    Course
+    |> Course.enrolled(user_id)
+    |> Repo.all
+  end
+
   @spec new_course(User.t, Course.params)
   :: {:ok, Course.t}
   | {:error, Ecto.Changeset.t}

@@ -10,7 +10,7 @@ defmodule OnCourse.Web.Auth.Controller do
 
   @spec callback(Plug.Conn.t, ignored) :: Plug.Conn.t
   def callback(%Plug.Conn{assigns: %{ueberauth_auth: %{info: info}}} = conn, _params) do
-    data = %{email: info.email, handle: info.handle, avatar: info.urls.avatar_url}
+    data = %{email: info.email, handle: info.nickname, avatar: info.urls.avatar_url}
 
     with {:ok, %User{} = user} <- Accounts.upsert_user(%User{}, data) do
       conn

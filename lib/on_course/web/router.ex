@@ -24,6 +24,11 @@ defmodule OnCourse.Web.Router do
 
     get "/", LandingController, :index
     get "/dashboard", PageController, :dashboard
+    get "/courses", Course.Controller, :enrolled, as: :enrolled_courses
+    get "/courses/new", Course.Controller, :new, as: :new_course
+    get "/courses/:course_id", Course.Controller, :show, as: :course
+    post "/admin/courses", Course.Controller, :create, as: :courses
+    post "/courses/:course_id/enrollments", Course.Controller, :enroll, as: :enroll
   end
 
   scope "/auth", OnCourse.Web do

@@ -4,14 +4,17 @@ defmodule OnCourse.Quiz.Category do
   alias OnCourse.Quiz.Category
   alias OnCourse.Courses.Topic
 
+  @type name :: String.t
+
   @type params :: %{
-    name: String.t
+    name: name
   }
 
   schema "quiz_categories" do
     field :name, :string
 
     belongs_to :topic, OnCourse.Courses.Topic
+    has_many :category_items, OnCourse.Quiz.CategoryItem
 
     timestamps()
   end

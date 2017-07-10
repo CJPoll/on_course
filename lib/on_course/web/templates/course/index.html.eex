@@ -1,0 +1,23 @@
+<a href=<%= new_course_path(@conn, :new)  %>> New Course </a>
+
+<h2> Enrolled </h2>
+<div>
+  <%= if @enrolled_courses == [] do %>
+  <p> Looks like you haven't enrolled in any courses yet! </p>
+  <% end %>
+  <%= for course <- @enrolled_courses do %>
+    <div class="course">
+      <a href="<%= course_path(@conn, :show, course) %>"><%= course.name %></h3>
+    </div>
+  <% end %>
+</div>
+
+<h2> Owned </h2>
+
+<div>
+  <%= for course <- @courses do %>
+    <div class="course">
+      <a href="<%= course_path(@conn, :show, course) %>"><%= course.name %></h3>
+    </div>
+  <% end %>
+</div>

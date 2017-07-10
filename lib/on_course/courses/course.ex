@@ -1,8 +1,10 @@
 defmodule OnCourse.Courses.Course do
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   alias OnCourse.Courses.Course
   alias OnCourse.Accounts.User
+
+  @type id :: String.t | pos_integer
 
   @type params :: %{
     name: String.t
@@ -12,6 +14,7 @@ defmodule OnCourse.Courses.Course do
     field :name, :string
 
     belongs_to :owner, OnCourse.Accounts.User
+    many_to_many :enrollments, OnCourse.Accounts.User, join_through: "courses_enrollments"
 
     timestamps()
   end
@@ -22,6 +25,18 @@ defmodule OnCourse.Courses.Course do
     |> cast(attrs, [:name])
     |> validate_required([:name])
     |> foreign_key_constraint(:owner_id)
+  end
+
+  @spec owned_by(Ecto.Queryable.t, id) :: Ecto.Queryable.t
+  def owned_by(queryable, user_id) do
+    from c in queryable,
+      where: c.owner_id == ^user_id
+  end
+
+  @spec enrolled(Ecto.Queryable.t, id) :: Ecto.Queryable.t
+  def enrolled(queryable, user_id) do
+    from c in queryable,
+      where: c.owner_id == ^user_id
   end
 
   @doc false

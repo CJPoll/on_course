@@ -9,6 +9,7 @@ defmodule OnCourse.Courses.Topic do
     field :name, :string
 
     belongs_to :course, Course
+    has_many :categories, OnCourse.Quiz.Category
 
     timestamps()
   end
