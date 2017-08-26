@@ -23,6 +23,7 @@ defmodule OnCourse.Quiz.CategoryItem do
     |> cast(attrs, [:name])
     |> validate_required([:name])
     |> foreign_key_constraint(:category_id)
+    |> unique_constraint(:name, name: :category_items_category_id_name_index)
   end
 
   @doc false

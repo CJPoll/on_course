@@ -66,6 +66,12 @@ defmodule OnCourse.QuizTest do
         @test_module.add_category(nil, params)
       end
     end
+
+    test "requires the name to be unique within a topic", %{category_params: params, topic: topic} do
+      assert {:ok, %Category{}} = @test_module.add_category(topic, params)
+      assert {:error, cs} = @test_module.add_category(topic, params)
+      assert {:name, "has already been taken"} in Ectoplasm.errors_on(cs)
+    end
   end
 
   describe "add_category_item/2" do

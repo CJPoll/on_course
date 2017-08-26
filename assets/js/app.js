@@ -11,7 +11,17 @@
 //
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
-import "phoenix_html"
+import "phoenix_html";
+
+function contentLoaded() {
+  const elmDiv = document.getElementById('quiz-mount')
+
+  if (elmDiv) {
+    Elm.Quiz.embed(elmDiv)
+  }
+}
+
+document.addEventListener('DOMContentLoaded', contentLoaded);
 
 // Import local files
 //

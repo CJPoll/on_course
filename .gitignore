@@ -24,4 +24,9 @@ npm-debug.log
 # Alternatively, you may comment the line below and commit the
 # secrets files as long as you replace their contents by environment
 # variables.
-/config/*.secret.exs
+/config/*.secret.exs/keyrings/live/pubring.gpg~
+/keyrings/live/pubring.kbx~
+/keyrings/live/secring.gpg
+/test_encryption
+assets/quiz/elm-stuff
+assets/quiz/src/elm-stuff

@@ -1,6 +1,10 @@
 defmodule OnCourse.Web.ErrorView do
   use OnCourse.Web, :view
 
+  def render("403.html", _assigns) do
+    "Unauthorized"
+  end
+
   def render("404.html", _assigns) do
     "Page not found"
   end

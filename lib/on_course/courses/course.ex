@@ -16,6 +16,8 @@ defmodule OnCourse.Courses.Course do
     belongs_to :owner, OnCourse.Accounts.User
     many_to_many :enrollments, OnCourse.Accounts.User, join_through: "courses_enrollments"
 
+    has_many :topics, OnCourse.Courses.Topic
+
     timestamps()
   end
 

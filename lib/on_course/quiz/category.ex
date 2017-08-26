@@ -25,6 +25,7 @@ defmodule OnCourse.Quiz.Category do
     |> cast(attrs, [:name])
     |> validate_required([:name])
     |> foreign_key_constraint(:topic_id)
+    |> unique_constraint(:name, [name: :quiz_categories_topic_id_name_index])
   end
 
   @doc false

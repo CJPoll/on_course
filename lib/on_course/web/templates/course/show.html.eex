@@ -1,3 +1,12 @@
 <div>
   <h3><%= @course.name %></h3>
+
+  <%= if Permission.can?(@current_user, :create, {@course, OnCourse.Courses.Topic}) do %>
+  <a href="<%= new_topic_path(@conn, :new, @course) %>"> Add Topic </a>
+  <% end %>
+  <ul>
+    <%= for topic <- @course.topics do %>
+      <li><a href="<%= topic_path(@conn, :show, topic) %>"><%= topic.name %></a></li>
+    <% end %>
+  </ul>
 </div>

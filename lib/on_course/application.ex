@@ -7,6 +7,7 @@ defmodule OnCourse.Application do
     children = [
       supervisor(OnCourse.Repo, []),
       supervisor(OnCourse.Web.Endpoint, []),
+      supervisor(OnCourse.Quiz.Session.Supervisor, [])
     ]
 
     opts = [strategy: :one_for_one, name: OnCourse.Supervisor]

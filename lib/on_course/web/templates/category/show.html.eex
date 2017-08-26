@@ -1,0 +1,19 @@
+<h2> <%= @category.name %> </h2>
+
+<%= if Permission.can?(@current_user, :create, {@category, OnCourse.Quiz.CategoryItem}) do %>
+  <form method="post" action="/categories/<%= @category.id %>/category_items">
+    <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>" />
+    <label>Add Category Item</label>
+    <input type="text" name="category_item[name]"</input>
+
+    <input type="submit" value="Add" />
+  </form>
+<% end %>
+
+<%= if Ecto.assoc_loaded?(@category.category_items) and length(@category.category_items) > 0 do %>
+  <ul class="category_items">
+    <%= for category_item <- @category.category_items do %>
+      <li><%= category_item.name %></li>
+    <% end %>
+  </ul>
+<% end %>

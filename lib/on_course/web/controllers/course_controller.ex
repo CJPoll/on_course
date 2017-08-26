@@ -9,11 +9,9 @@ defmodule OnCourse.Web.Course.Controller do
   plug :scrub_params, "course" when action in [:create]
 
   def create(%Plug.Conn{} = conn, %{"course" => course_params}) do
-    current_user =  Guardian.Plug.current_resource(conn)
-
-    case Courses.new_course(current_user, course_params) do
+    case Courses.new_course(conn.assigns.current_user, course_params) do
       {:ok, %Course{} = course} ->
-        render(conn, "show.html", course: course)
+        render(conn, "show.html", course: Repo.preload(course, :topics))
       {:error, cs} ->
         render(conn, "new.html", changeset: cs)
     end
@@ -41,15 +39,18 @@ defmodule OnCourse.Web.Course.Controller do
 
   def show(%Plug.Conn{} = conn, %{"course_id" => course_id}) do
     current_user = Guardian.Plug.current_resource(conn)
-    course = Courses.find(course_id)
+    course =
+      course_id
+      |> Courses.find
+      |> Repo.preload(:topics)
 
     cond do
       course == nil ->
-        send_resp(conn, 404, "No such course")
+        render(conn, ErrorView, "404.html", [])
       Permission.can?(current_user, :view, course) ->
         render(conn, "show.html", course: course)
       true ->
-        send_resp(conn, 403, "Unauthorized")
+        render(conn, ErrorView, "403.html", [])
     end
   end
 end

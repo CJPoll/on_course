@@ -22,6 +22,7 @@ defmodule OnCourse.Web do
       import Plug.Conn
       import OnCourse.Web.Router.Helpers
       import OnCourse.Web.Gettext
+      alias OnCourse.Web.ErrorView
 
       alias OnCourse.Accounts
       alias OnCourse.Accounts.User
@@ -45,6 +46,12 @@ defmodule OnCourse.Web do
       import OnCourse.Web.Router.Helpers
       import OnCourse.Web.ErrorHelpers
       import OnCourse.Web.Gettext
+
+      alias OnCourse.Permission
+
+      def csrf_token(%Plug.Conn{} = conn) do
+        Plug.CSRFProtection.get_csrf_token()
+      end
     end
   end
 

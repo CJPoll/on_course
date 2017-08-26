@@ -6,8 +6,11 @@ defmodule OnCourse.Quiz do
   import Ecto.Query, warn: false
   alias OnCourse.Repo
 
-  alias OnCourse.Quiz.{Category, CategoryItem, Question}
+  alias OnCourse.Quiz.{Category, CategoryItem, Question, Session}
+  alias OnCourse.Quiz.Session.Worker, as: SessionWorker
+  alias OnCourse.Quiz.Session.Supervisor, as: SessionSupervisor
   alias OnCourse.Courses.Topic
+  alias OnCourse.Accounts.User
 
   @doc """
   Adds a category to a given topic. The topic struct is a required parameter,
@@ -33,6 +36,44 @@ defmodule OnCourse.Quiz do
     |> Repo.insert
   end
 
+  @spec category(Category.id) :: Category.t | nil
+  def category(category_id) do
+    Repo.get(Category, category_id)
+  end
+
+  @spec delete(Category.t)
+  :: {:ok, Category.t}
+  | {:error, Ecto.Changeset.t}
+  def delete(%Category{} = category) do
+    Repo.delete(category)
+  end
+
+  @spec id_token(SessionWorker.t) :: Session.id_token | nil
+  def id_token(%SessionWorker{} = worker) do
+    SessionWorker.id_token(worker)
+  end
+
+  @spec with_category_items(Category.t) :: Category.t
+  def with_category_items(%Category{} = category) do
+    Repo.preload(category, :category_items)
+  end
+
+  @spec with_quiz_data(Topic.t | Topic.id) :: Topic.t
+  def with_quiz_data(%Topic{id: id}), do: with_quiz_data(id)
+  def with_quiz_data(id) when is_binary(id) or is_integer(id) do
+    q =
+      from t in Topic,
+        where: t.id == ^id,
+        preload: [:categories, categories: :category_items]
+
+    Repo.one(q)
+  end
+
+  @spec with_topic(Category.t) :: Category.t
+  def with_topic(%Category{} = category) do
+    Repo.preload(category, :topic)
+  end
+
   @doc """
   This function takes a topic and returns a list of questions designed to aid
   in learning the topic.
@@ -56,7 +97,7 @@ defmodule OnCourse.Quiz do
       |> Enum.map(fn(cat_item) -> cat_item.name end)
       |> MapSet.new
 
-    join = cross_join(category_names, item_names) |> IO.inspect
+    join = cross_join(category_names, item_names)
 
     category_index =
       topic.categories
@@ -79,6 +120,14 @@ defmodule OnCourse.Quiz do
         Question.true_false(e, item_index)
       end
     end)
+  end
+
+  @spec start_quiz(User.t, Topic.t)
+  :: {:ok, SessionWorker.t}
+  | {:error, :ignore}
+  | {:error, term}
+  def start_quiz(%User{} = user, %Topic{} = topic) do
+    SessionSupervisor.start_session(user, topic)
   end
 
   @type a :: term

@@ -7,10 +7,12 @@ defmodule OnCourse.Quiz.Question do
 
   defstruct [:correct_answer, :prompt, :question_type]
 
+  @type answer :: String.t | [String.t] | boolean
+
   @type t :: %__MODULE__{
     prompt: String.t,
     question_type: question_type,
-    correct_answer: String.t | [String.t] | boolean
+    correct_answer: answer
   }
 
   @type t(question_type) :: %__MODULE__{

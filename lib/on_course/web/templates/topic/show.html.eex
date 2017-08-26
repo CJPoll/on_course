@@ -1,0 +1,25 @@
+<h2> <%= @topic.name %> </h2>
+
+<%= if Permission.can?(@current_user, :create, {@topic, OnCourse.Quiz.Category}) do %>
+  <form method="post" action="/topics/<%= @topic.id %>/categories">
+    <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>" />
+    <label>Add Category</label>
+    <input type="text" name="category[name]"</input>
+
+    <input type="submit" value="Add" />
+  </form>
+<% end %>
+
+<%= if Permission.can?(@current_user, :modify, {@topic, OnCourse.Quiz}) do %>
+  <a href="#">Edit Categorization</a>
+<% end %>
+
+<%= if Ecto.assoc_loaded?(@topic.categories) and length(@topic.categories) > 0 do %>
+  <br/>
+  <%= link "Take quiz!", to: "/topics/#{@topic.id}/quiz" %>
+  <ul class="categories">
+    <%= for category <- @topic.categories do %>
+      <li><%= link category.name, to: "/categories/#{category.id}" %> <%= link "X", to: "/categories/#{category.id}", method: :delete %></li>
+    <% end %>
+  </ul>
+<% end %>
