@@ -67,11 +67,10 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-# Configure your database
 config :on_course, OnCourse.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: System.get_env("DATA_DB_USER"),
+  password: System.get_env("DATA_DB_PASS"),
+  hostname: System.get_env("DATA_DB_HOST"),
   database: "on_course_dev",
-  hostname: "localhost",
   pool_size: 10

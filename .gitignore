@@ -27,6 +27,6 @@ npm-debug.log
 /config/*.secret.exs/keyrings/live/pubring.gpg~
 /keyrings/live/pubring.kbx~
 /keyrings/live/secring.gpg
-/test_encryption
 assets/quiz/elm-stuff
 assets/quiz/src/elm-stuff
+tags

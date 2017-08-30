@@ -49,9 +49,9 @@ exports.config = {
       ignore: [/vendor/]
     },
     elmBrunch: {
-      elmFolder: 'quiz/src',
+      elmFolder: 'quiz',
       mainModules: ['Quiz.elm'],
-      outputFolder: '../../static/js'
+      outputFolder: '../static/js'
     }
   },
 
