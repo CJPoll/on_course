@@ -45,9 +45,15 @@ defmodule OnCourse.Quiz.Session do
     |> String.downcase
   end
 
-  @spec next_question(t) :: Question.t | nil
-  def next_question(%__MODULE__{questions: [next | _]}), do: next
-  def next_question(%__MODULE__{questions: []}), do: nil
+  @spec peek(t) :: Question.t | nil
+  def peek(%__MODULE__{questions: [next | _]}), do: next
+  def peek(%__MODULE__{questions: []}), do: nil
+
+  @spec pop(t) :: {t, Question.t | nil}
+  def pop(%__MODULE__{questions: [next | rest]} = session) do
+    {%__MODULE__{session | questions: rest}, next}
+  end
+  def pop(%__MODULE__{questions: []} = session), do: {session, nil}
 
   @spec answer_question(t, Question.answer)
   :: {response, t}

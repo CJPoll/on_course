@@ -9453,43 +9453,136 @@ var _fbonetti$elm_phoenix_socket$Phoenix_Socket$listen = F2(
 var _user$project$Quiz$view = function (model) {
 	return _elm_lang$html$Html$text('Hi');
 };
-var _user$project$Quiz$init = {
-	ctor: '_Tuple2',
-	_0: {
-		socket: _fbonetti$elm_phoenix_socket$Phoenix_Socket$init('ws://localhost:4000/socket/websocket')
-	},
-	_1: _elm_lang$core$Platform_Cmd$none
+var _user$project$Quiz$quizRoom = function (quizId) {
+	return _elm_lang$core$String$concat(
+		{
+			ctor: '::',
+			_0: 'quiz:',
+			_1: {
+				ctor: '::',
+				_0: quizId,
+				_1: {ctor: '[]'}
+			}
+		});
 };
-var _user$project$Quiz$Model = function (a) {
-	return {socket: a};
+var _user$project$Quiz$Question = function (a) {
+	return {prompt: a};
+};
+var _user$project$Quiz$Model = F3(
+	function (a, b, c) {
+		return {socket: a, quizId: b, question: c};
+	});
+var _user$project$Quiz$GetCurrentQuestion = {ctor: 'GetCurrentQuestion'};
+var _user$project$Quiz$JoinChannel = function (a) {
+	return {ctor: 'JoinChannel', _0: a};
+};
+var _user$project$Quiz$init = function (quizId) {
+	return {
+		ctor: '_Tuple2',
+		_0: {
+			socket: _fbonetti$elm_phoenix_socket$Phoenix_Socket$init('ws://on_course.dev:4000/socket/websocket'),
+			quizId: quizId,
+			question: _elm_lang$core$Maybe$Nothing
+		},
+		_1: A2(
+			_elm_lang$core$Task$perform,
+			_user$project$Quiz$JoinChannel,
+			_elm_lang$core$Task$succeed(
+				_elm_lang$core$String$concat(
+					{
+						ctor: '::',
+						_0: 'quiz:',
+						_1: {
+							ctor: '::',
+							_0: quizId,
+							_1: {ctor: '[]'}
+						}
+					})))
+	};
 };
 var _user$project$Quiz$PhoenixMsg = function (a) {
 	return {ctor: 'PhoenixMsg', _0: a};
 };
-var _user$project$Quiz$update = F2(
-	function (msg, model) {
-		var _p0 = msg;
-		if (_p0.ctor === 'Noop') {
-			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-		} else {
-			var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p0._0, model.socket);
-			var phoenixSocket = _p1._0;
-			var cmd = _p1._1;
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{socket: phoenixSocket}),
-				_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Quiz$PhoenixMsg, cmd)
-			};
-		}
-	});
 var _user$project$Quiz$subscriptions = function (model) {
 	return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.socket, _user$project$Quiz$PhoenixMsg);
 };
-var _user$project$Quiz$main = _elm_lang$html$Html$program(
-	{init: _user$project$Quiz$init, subscriptions: _user$project$Quiz$subscriptions, update: _user$project$Quiz$update, view: _user$project$Quiz$view})();
 var _user$project$Quiz$Noop = {ctor: 'Noop'};
+var _user$project$Quiz$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'Noop':
+				return A2(
+					_elm_lang$core$Debug$log,
+					'Noop',
+					{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
+			case 'PhoenixMsg':
+				var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p0._0, model.socket);
+				var phoenixSocket = _p1._0;
+				var cmd = _p1._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{socket: phoenixSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Quiz$PhoenixMsg, cmd)
+				};
+			case 'GetCurrentQuestion':
+				var push_ = A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+					_elm_lang$core$Json_Encode$object(
+						{
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'quiz_id',
+								_1: _elm_lang$core$Json_Encode$string(model.quizId)
+							},
+							_1: {ctor: '[]'}
+						}),
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$init,
+						'current_question',
+						_user$project$Quiz$quizRoom(model.quizId)));
+				var _p2 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, model.socket);
+				var socket = _p2._0;
+				var cmd = _p2._1;
+				return A2(
+					_elm_lang$core$Debug$log,
+					'This is the current question',
+					{
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{socket: socket}),
+						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Quiz$PhoenixMsg, cmd)
+					});
+			default:
+				var channel = A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Channel$onClose,
+					_elm_lang$core$Basics$always(_user$project$Quiz$Noop),
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Channel$onJoin,
+						_elm_lang$core$Basics$always(_user$project$Quiz$GetCurrentQuestion),
+						A2(
+							_fbonetti$elm_phoenix_socket$Phoenix_Channel$withPayload,
+							_elm_lang$core$Json_Encode$object(
+								{ctor: '[]'}),
+							_fbonetti$elm_phoenix_socket$Phoenix_Channel$init(_p0._0))));
+				var _p3 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.socket);
+				var socket = _p3._0;
+				var cmd = _p3._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{socket: socket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Quiz$PhoenixMsg, cmd)
+				};
+		}
+	});
+var _user$project$Quiz$main = _elm_lang$html$Html$programWithFlags(
+	{init: _user$project$Quiz$init, subscriptions: _user$project$Quiz$subscriptions, update: _user$project$Quiz$update, view: _user$project$Quiz$view})(_elm_lang$core$Json_Decode$string);
 
 var Elm = {};
 Elm['Quiz'] = Elm['Quiz'] || {};

@@ -3,6 +3,7 @@ defmodule OnCourse.Web.UserSocket do
 
   ## Channels
   # channel "room:*", OnCourse.Web.RoomChannel
+  channel "quiz:*", OnCourse.Web.QuizChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

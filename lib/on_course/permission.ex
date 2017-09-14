@@ -70,16 +70,8 @@ defmodule OnCourse.Permission do
     if Repo.one(q2) || Repo.one(q1) , do: true, else: false
   end
 
-  def can?(%User{id: user_id}, :modify, {%Topic{id: topic_id}, Quiz}) do
-    q =
-      from u in User,
-        inner_join: c in Course, on: c.owner_id == u.id,
-        inner_join: t in Topic, on: t.course_id == c.id,
-        where: t.id == ^topic_id,
-        where: u.id == ^user_id,
-        select: t.id
-
-    if Repo.one(q), do: true, else: false
+  def can?(%User{} = user, :modify, {%Topic{} = topic, Quiz}) do
+    owns?(user, topic)
   end
 
   def can?(%User{id: user_id}, :delete, %Category{id: category_id}) do

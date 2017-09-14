@@ -14,11 +14,12 @@
 import "phoenix_html";
 
 function contentLoaded() {
-  const elmDiv = document.getElementById('quiz-mount')
+    const elmDiv = document.getElementById('quiz-mount');
 
-  if (elmDiv) {
-    Elm.Quiz.embed(elmDiv)
-  }
+    if (elmDiv) {
+        const quizId = window.quizId;
+        const app = Elm.Quiz.embed(elmDiv, quizId);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', contentLoaded);

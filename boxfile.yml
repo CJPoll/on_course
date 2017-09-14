@@ -26,9 +26,11 @@ run.config:
     - assets/package-lock.json
     - assets/quiz/elm-package.json
 
-      #extra_steps:
-      #- extrcd assets && npm install
+  extra_steps:
+      #- cd assets && npm install
       #- cd assets/quiz && elm-package install
+    - MIX_ENV=test mix dialyzer --plt
+
 
 data.db:
   image: nanobox/postgresql

@@ -1,11 +1,56 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     OnCourse.Repo.insert!(%OnCourse.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+alias OnCourse.Accounts.User
+alias OnCourse.Courses.{Course, Topic}
+alias OnCourse.Quiz.{Category, CategoryItem}
+alias OnCourse.Repo
+
+admin =
+  Repo.insert!(%User{
+      avatar: "https://avatars2.githubusercontent.com/u/1310084?v=4",
+      email: "CJPoll@gmail.com",
+      handle: "CJPoll"
+    })
+
+
+course =
+  Repo.insert!(%Course{
+    name: "Social Skills",
+    owner_id: admin.id
+  })
+
+topic =
+  Repo.insert!(%Topic{
+    name: "Coolness",
+    course_id: course.id
+  })
+
+category_1 =
+  Repo.insert!(%Category{
+    name: "Cool",
+    topic_id: topic.id
+  })
+
+category_2 =
+  Repo.insert!(%Category{
+    name: "Uncool",
+    topic_id: topic.id
+  })
+
+Repo.insert!(%CategoryItem{
+  name: "Sunglasses",
+  category_id: category_1.id
+})
+
+Repo.insert!(%CategoryItem{
+  name: "Elixir",
+  category_id: category_1.id
+})
+
+Repo.insert!(%CategoryItem{
+  name: "Crocs",
+  category_id: category_2.id
+})
+
+Repo.insert!(%CategoryItem{
+  name: "Cargo Pants",
+  category_id: category_2.id
+})

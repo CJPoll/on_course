@@ -14,10 +14,10 @@ config :logger, level: :warn
 # Configure your database
 config :on_course, OnCourse.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: System.get_env("DATA_DB_USER"),
+  password: System.get_env("DATA_DB_PASS"),
+  hostname: System.get_env("DATA_DB_HOST"),
   database: "on_course_test",
-  hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :ueberauth, Ueberauth,
