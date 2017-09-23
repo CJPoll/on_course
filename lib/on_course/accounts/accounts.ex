@@ -49,7 +49,7 @@ defmodule OnCourse.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec upsert_user(User.t, %{email: String.t, handle: String.t, avatar: String.t})
+  @spec upsert_user(User.t | User.empty, %{email: String.t, handle: String.t, avatar: String.t})
   :: {:ok, Ecto.Schema.t}
   | {:error, Ecto.Changeset.t}
   def upsert_user(%User{} = user, %{email: email, handle: handle, avatar: avatar} = attrs) do

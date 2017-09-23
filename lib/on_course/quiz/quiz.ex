@@ -48,7 +48,7 @@ defmodule OnCourse.Quiz do
     Repo.delete(category)
   end
 
-  @spec id_token(SessionWorker.t) :: Session.id_token | nil
+  @spec id_token(SessionWorker.t) :: Session.id | nil
   def id_token(%SessionWorker{} = worker) do
     SessionWorker.id_token(worker)
   end
@@ -58,7 +58,8 @@ defmodule OnCourse.Quiz do
     Repo.preload(category, :category_items)
   end
 
-  @spec with_quiz_data(Topic.t | Topic.id) :: Topic.t
+  @spec with_quiz_data(Topic.t | Topic.id | nil) :: Topic.t | nil
+  def with_quiz_data(nil), do: nil
   def with_quiz_data(%Topic{id: id}), do: with_quiz_data(id)
   def with_quiz_data(id) when is_binary(id) or is_integer(id) do
     q =

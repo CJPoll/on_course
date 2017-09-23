@@ -1,9 +1,11 @@
 defmodule OnCourse.Quiz.Session.Worker do
   use GenServer
 
+  require Logger
+
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.Topic
-  alias OnCourse.Quiz.Session
+  alias OnCourse.Quiz.{Question, Session}
 
   defstruct [:pid]
   @type t :: %__MODULE__{}
@@ -24,9 +26,27 @@ defmodule OnCourse.Quiz.Session.Worker do
     GenServer.start_link(__MODULE__, {session}, name: {:global, session.id})
   end
 
-  @spec id_token(t) :: Session.id_token | nil
+  @spec authorized_user?(t, User.t) :: boolean
+  def authorized_user?(%__MODULE__{pid: pid}, %User{} = user) do
+    GenServer.call(pid, {:authorized_user?, user})
+  end
+
+  @spec id_token(t) :: Session.id | nil
   def id_token(%__MODULE__{pid: pid}) do
     GenServer.call(pid, :id_token)
+  end
+
+  @spec find_session(Session.id) :: nil | t
+  def find_session(quiz_id) do
+    case :global.whereis_name(quiz_id) do
+      :undefined -> nil
+      pid when is_pid(pid) -> %__MODULE__{pid: pid}
+    end
+  end
+
+  @spec peek(t) :: Question.t | nil
+  def peek(%__MODULE__{pid: pid}) when is_pid(pid) do
+    GenServer.call(pid, :peek)
   end
 
   # Callback Functions
@@ -40,7 +60,18 @@ defmodule OnCourse.Quiz.Session.Worker do
     {:reply, id_token, state}
   end
 
-  def handle_call(_, _, state) do
+  def handle_call(:peek, _from, %State{session: %Session{} = session} = state) do
+    current_question = Session.peek(session)
+    {:reply, current_question, state}
+  end
+
+  def handle_call({:authorized_user?, user}, _from, %State{session: %Session{} = session} = state) do
+    authorized = Session.authorized_user?(session, user)
+    {:reply, authorized, state}
+  end
+
+  def handle_call(msg, _, state) do
+    Logger.error("#{__MODULE__} received message it didn't understand: #{inspect msg}")
     {:reply, :unknown_message, state}
   end
 

@@ -9,6 +9,7 @@ defmodule OnCourse.Mixfile do
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      start_permanent: Mix.env == :prod,
      aliases: aliases(),
+     dialyzer: [plt_add_deps: :app_direct, ignore_warnings: "dialyzer.ignore-warnings"],
      deps: deps()]
   end
 

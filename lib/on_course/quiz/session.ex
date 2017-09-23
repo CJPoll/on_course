@@ -17,6 +17,13 @@ defmodule OnCourse.Quiz.Session do
     user: User.t
   }
 
+  @doc """
+  Creates a new session. The ID is a hash of the user id and topic id.
+
+  All categories and associated category_items must be loaded onto the topic;
+  this function does no interaction with the database - it only generates
+  questions from the loaded data.
+  """
   @spec new(User.t, Topic.t) :: t
   def new(%User{} = user, %Topic{} = topic) do
     id = identifier(user, topic)
@@ -44,6 +51,10 @@ defmodule OnCourse.Quiz.Session do
     |> Base.encode16
     |> String.downcase
   end
+
+  @spec authorized_user?(t, User.t) :: boolean
+  def authorized_user?(%__MODULE__{user: %User{id: id}}, %User{id: id}), do: true
+  def authorized_user?(%__MODULE__{}, _), do: false
 
   @spec peek(t) :: Question.t | nil
   def peek(%__MODULE__{questions: [next | _]}), do: next

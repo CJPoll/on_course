@@ -1,9 +1,9 @@
 defmodule OnCourse.Quiz.Question do
   @type choice :: String.t
   @type question_type ::
-  {:multiple_choice, [choice]}
-    | :text_input
-    | :true_false
+    {:multiple_choice, [choice]}
+      | :text_input
+      | :true_false
 
   defstruct [:correct_answer, :prompt, :question_type]
 
@@ -75,5 +75,21 @@ defmodule OnCourse.Quiz.Question do
 
   def correct?(category_name, item_name, item_index) do
     category_name in item_index[item_name]
+  end
+end
+
+defimpl Poison.Encoder, for: OnCourse.Quiz.Question do
+  def encode(%OnCourse.Quiz.Question{} = question, _options) do
+    map =
+      case question.question_type do
+        :text_input ->
+          %{"prompt" => question.prompt, "question_type" => "text_input"}
+        :true_false ->
+          %{"prompt" => question.prompt, "question_type" => "true_false"}
+        {:multiple_choice_single, choices} ->
+          %{"prompt" => question.prompt, "question_type" => "multiple_choice", "choices" => choices}
+      end
+
+    Poison.encode!(map)
   end
 end

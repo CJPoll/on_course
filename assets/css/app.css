@@ -1,1 +1,25 @@
 /* This file is for your main application css. */
+
+html
+{
+    box-sizing: border-box;
+}
+
+*, *:before, *:after
+{
+    box-sizing: inherit;
+}
+
+.choice
+{
+    padding: 8px;
+    border: dashed;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.choice:hover
+{
+    background-color: #D3D3D3;
+    cursor: pointer;
+}

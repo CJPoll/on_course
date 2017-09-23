@@ -3,5 +3,6 @@
 <div id="quiz-mount"></div>
 <script>
 window.quizId = "<%= @id_token %>";
+window.userId = "<%= Guardian.Plug.current_token(@conn) %>";
 </script>
 <script src="<%= static_path(@conn, "/js/quiz.js") %>"></script>

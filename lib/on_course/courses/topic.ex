@@ -1,7 +1,8 @@
 defmodule OnCourse.Courses.Topic do
-  use Ecto.Schema
-  import Ecto.Changeset
+  use OnCourse.Model
+
   alias OnCourse.Courses.Course
+  alias OnCourse.Quiz.Category
 
   @type params :: %{:name => String.t}
 
@@ -13,6 +14,12 @@ defmodule OnCourse.Courses.Topic do
 
     timestamps()
   end
+
+  @type t :: %__MODULE__{
+    name: String.t,
+    course: Model.association(Course.t),
+    categories: Model.association([Category.t])
+  }
 
   @doc false
   def changeset(%__MODULE__{} = topic, attrs) do
