@@ -23,3 +23,29 @@ html
     background-color: #D3D3D3;
     cursor: pointer;
 }
+
+.answer-option
+{
+		max-width: 25%;
+}
+
+.answer-option-correct
+{
+		max-width: 25%;
+		background-color: green;
+		color: white;
+}
+
+.answer-option-incorrect
+{
+		max-width: 25%;
+		background-color: red;
+		color: white;
+}
+
+.answer-option-should-be-correct
+{
+		max-width: 25%;
+		background-color: orange;
+		color: white;
+}

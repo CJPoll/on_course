@@ -10,3 +10,4 @@ type Msg
     | QuestionAsked Json.Encode.Value
     | AnswerSelected String
     | SessionJoined
+    | ReviewAnswer Json.Encode.Value

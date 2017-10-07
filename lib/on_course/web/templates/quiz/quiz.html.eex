@@ -1,8 +1,14 @@
 <h1> Quizzing <%= @topic.name %></h1>
 
-<div id="quiz-mount"></div>
-<script>
-window.quizId = "<%= @id_token %>";
-window.userId = "<%= Guardian.Plug.current_token(@conn) %>";
-</script>
-<script src="<%= static_path(@conn, "/js/quiz.js") %>"></script>
+<form method="POST" action="/topics/<%= @topic.id %>/quiz">
+  <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>">
+
+  <%= case @question.question_type do %>
+    <% :true_false -> %>
+      <%= render "_true_false.html", question: @question, responses: [] %>
+    <% {:multiple_choice, options} -> %>
+      <%= render "_multiple_choice.html", options: options, question: @question, responses: [] %>
+  <% end %>
+
+  <input type="submit" value="Submit Answer" />
+</form>

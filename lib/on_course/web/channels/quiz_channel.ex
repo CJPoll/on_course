@@ -17,6 +17,8 @@ defmodule OnCourse.Web.QuizChannel do
         |> assign(:current_user, user)
         |> assign(:quiz_session, worker)
 
+      Process.monitor(worker.pid)
+
       {:ok, socket}
     else
       err -> {:error, %{reason: err}}
@@ -29,11 +31,18 @@ defmodule OnCourse.Web.QuizChannel do
 
   def handle_in("current_question", _payload, socket) do
     if question = SessionWorker.peek(socket.assigns.quiz_session) do
-      push socket, "current_question", question
-      {:reply, :ok, socket}
+      {:reply, {:ok, question}, socket}
     else
-      push socket, "current_question", %{}
-      {:reply, :ok, socket}
+      {:reply, {:ok, %{}}, socket}
+    end
+  end
+
+  def handle_in("answer_selected", %{"answer" => answers}, socket) do
+    case SessionWorker.answer(socket.assigns.quiz_session, answers) do
+      :correct ->
+        {:reply, {:ok, %{answer: :correct}}, socket}
+      {:incorrect, correct_answers} ->
+        {:reply, {:ok, %{answer: :incorrect, correct_answer: correct_answers}}, socket}
     end
   end
 

@@ -12,6 +12,8 @@ defmodule OnCourse.Quiz do
   alias OnCourse.Courses.Topic
   alias OnCourse.Accounts.User
 
+  defdelegate find_session(id), to: SessionWorker
+
   @doc """
   Adds a category to a given topic. The topic struct is a required parameter,
   raising a FunctionClauseException if not present.
@@ -41,6 +43,11 @@ defmodule OnCourse.Quiz do
     Repo.get(Category, category_id)
   end
 
+  @spec current_question(SessionWorker.t) :: Question.t | nil
+  def current_question(%SessionWorker{} = session) do
+    SessionWorker.peek(session)
+  end
+
   @spec delete(Category.t)
   :: {:ok, Category.t}
   | {:error, Ecto.Changeset.t}
@@ -51,6 +58,11 @@ defmodule OnCourse.Quiz do
   @spec id_token(SessionWorker.t) :: Session.id | nil
   def id_token(%SessionWorker{} = worker) do
     SessionWorker.id_token(worker)
+  end
+
+  @spec id_token(User.t, Topic.t) :: Session.id | nil
+  def id_token(%User{} = user, %Topic{} = topic) do
+    Session.identifier(user, topic)
   end
 
   @spec with_category_items(Category.t) :: Category.t
@@ -115,10 +127,9 @@ defmodule OnCourse.Quiz do
       end)
 
     Enum.map(join, fn(e) ->
-      if :rand.uniform(2) - 1 == 0 do
-        Question.multiple_choice(e, item_index, category_index)
-      else
-        Question.true_false(e, item_index)
+      case :rand.uniform(2) do
+        1 -> Question.multiple_choice(e, item_index, category_index)
+        2 -> Question.true_false(e, item_index)
       end
     end)
   end
@@ -138,5 +149,17 @@ defmodule OnCourse.Quiz do
   def cross_join(as, bs) do
     list = for a <- as, b <- bs, do: {a, b}
     MapSet.new(list)
+  end
+
+  def options(%Question{question_type: :true_false}) do
+    ["True", "False"]
+  end
+
+  def options(%Question{question_type: {:multiple_choice, options}}) do
+    options
+  end
+
+  def options(%Question{question_type: :text_input}) do
+    nil
   end
 end

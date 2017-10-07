@@ -26,6 +26,7 @@ type alias Model =
     , quizId : String
     , userId : String
     , question : Maybe Question.Question
+    , reviewing : Bool
     }
 
 
@@ -55,6 +56,7 @@ init flags =
           , quizId = flags.quizId
           , question = Nothing
           , userId = flags.userId
+          , reviewing = False
           }
         , Cmd.map PhoenixMsg cmd
         )
@@ -68,6 +70,13 @@ update msg model =
                 ( model, Cmd.none )
 
         AnswerSelected answer ->
+            let
+                ( session, cmd ) =
+                    Session.answerSelected answer model.session
+            in
+                ( model, Cmd.map PhoenixMsg cmd )
+
+        ReviewAnswer json_val ->
             ( model, Cmd.none )
 
         QuestionAsked body ->
@@ -115,20 +124,4 @@ view model =
             text "Loading question..."
 
         Just question ->
-            case question of
-                Question.TrueFalse prompt ->
-                    text prompt
-
-                Question.MultipleChoice choices prompt ->
-                    div []
-                        [ div [] [ text prompt ]
-                        , div [] (List.map displayChoice choices)
-                        ]
-
-                Question.TextInput prompt ->
-                    text prompt
-
-
-displayChoice choice =
-    span [ class "choice", onClick (AnswerSelected choice) ]
-        [ text choice ]
+            Question.render model.reviewing question []

@@ -1,4 +1,5 @@
 defmodule OnCourse.Quiz.Question do
+  alias OnCourse.Quiz.{Category, CategoryItem}
   @type choice :: String.t
   @type question_type ::
     {:multiple_choice, [choice]}
@@ -7,7 +8,10 @@ defmodule OnCourse.Quiz.Question do
 
   defstruct [:correct_answer, :prompt, :question_type]
 
-  @type answer :: String.t | [String.t] | boolean
+  @type answer :: [String.t]
+
+  @type item_index :: %{CategoryItem.name => [Category.name]}
+  @type category_index :: %{Category.name => [CategoryItem.name]}
 
   @type t :: %__MODULE__{
     prompt: String.t,
@@ -18,9 +22,43 @@ defmodule OnCourse.Quiz.Question do
   @type t(question_type) :: %__MODULE__{
     prompt: String.t,
     question_type: question_type,
-    correct_answer: String.t | [String.t] | boolean
+    correct_answer: answer
   }
 
+  @max_option_count 4
+
+  @spec review(t, answer)
+  :: %{
+    correct_answers: answer,
+    missing_answers: answer,
+    incorrect_answers: answer
+  }
+  def review(%__MODULE__{question_type: :true_false, correct_answer: true}, ["true"] = answer) do
+    %{
+      correct_answers: answer,
+      missing_answers: [],
+      incorrect_answers: []
+    }
+  end
+
+  def review(%__MODULE__{question_type: :true_false, correct_answer: false}, ["false"] = answer) do
+    %{
+      correct_answers: answer,
+      missing_answers: [],
+      incorrect_answers: []
+    }
+  end
+
+  def review(%__MODULE__{question_type: :true_false, correct_answer: correct_answer}, [answer]) do
+    %{
+      correct_answers: [],
+      missing_answers: [to_string(correct_answer)],
+      incorrect_answers: [answer]
+    }
+  end
+
+  @spec multiple_choice({Category.name, CategoryItem.name}, item_index, category_index)
+  :: t
   def multiple_choice({category_name, item_name}, item_index, category_index) do
     {choices, correct} =
     if correct?(category_name, item_name, item_index) do
@@ -29,13 +67,13 @@ defmodule OnCourse.Quiz.Question do
         |> Map.keys
         |> MapSet.new
         |> MapSet.difference(item_index |> Map.get(item_name) |> MapSet.new)
-        |> Enum.take(3)
+        |> Enum.take(@max_option_count - 1)
 
       correct =
-        if length(wrong) == 3 do
+        if length(wrong) == (@max_option_count - 1) do
           [category_name]
         else
-          [category_name | Enum.take(item_index[item_name], 3 - length(wrong))] |> Enum.uniq
+          [category_name | Enum.take(item_index[item_name], @max_option_count - 1 - length(wrong))] |> Enum.uniq
         end
 
       choices = correct ++ wrong
@@ -47,7 +85,7 @@ defmodule OnCourse.Quiz.Question do
         category_index
         |> Map.keys
         |> List.delete(category_name)
-        |> Enum.take(2)
+        |> Enum.take(@max_option_count - 2)
 
       wrong = [category_name | other_choices]
       choices = [correct | wrong]
@@ -56,14 +94,16 @@ defmodule OnCourse.Quiz.Question do
 
     %__MODULE__{
       prompt: "Which category contains #{item_name}?",
-      question_type: {:multiple_choice_single, choices |> Enum.uniq},
+      question_type: {:multiple_choice, choices |> Enum.uniq},
       correct_answer: correct
     }
   end
 
+  @spec true_false({Category.name, CategoryItem.name}, %{CategoryItem.name => [Category.name]})
+  :: t(:true_false)
   def true_false({category_name, item_name}, item_index) do
     %__MODULE__{
-      correct_answer: correct?(category_name, item_name, item_index),
+      correct_answer: [correct?(category_name, item_name, item_index) |> to_string],
       prompt: "Is #{item_name} in the category of #{category_name}?",
       question_type: :true_false
     }
@@ -86,7 +126,7 @@ defimpl Poison.Encoder, for: OnCourse.Quiz.Question do
           %{"prompt" => question.prompt, "question_type" => "text_input"}
         :true_false ->
           %{"prompt" => question.prompt, "question_type" => "true_false"}
-        {:multiple_choice_single, choices} ->
+        {:multiple_choice, choices} ->
           %{"prompt" => question.prompt, "question_type" => "multiple_choice", "choices" => choices}
       end
 

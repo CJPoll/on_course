@@ -6,7 +6,7 @@ defmodule OnCourse.Quiz.Session do
   alias OnCourse.Quiz
   alias OnCourse.Quiz.Question
 
-  @type response :: :correct | {:incorrect, Question.answer} | no_return
+  @type response :: :correct | {:incorrect, [Question.answer]} | no_return
   @type id :: String.t
 
   @type t :: %__MODULE__{
@@ -66,20 +66,21 @@ defmodule OnCourse.Quiz.Session do
   end
   def pop(%__MODULE__{questions: []} = session), do: {session, nil}
 
-  @spec answer_question(t, Question.answer)
+  @spec answer(t, Question.answer)
   :: {response, t}
-  def answer_question(%__MODULE__{questions: []}, _answer) do
+  def answer(%__MODULE__{questions: []}, _answer) do
     raise "Quiz Session has no more questions, but received an answer"
   end
 
-  def answer_question(%__MODULE__{questions: [q | rest]} = session, answer) do
-    resp = if correct?(q, answer), do: :correct, else: {:incorrect, q.correct_answer}
+  def answer(%__MODULE__{questions: [q | rest]} = session, answer) do
+    resp =
+      if correct?(q, answer), do: :correct, else: incorrect_response(q.correct_answer)
     {resp, %__MODULE__{ session | questions: rest, answered_questions: [{q, answer} | session.answered_questions]}}
   end
 
   def correct?(%Question{correct_answer: correct_answer}, answer)
   when is_binary(correct_answer) and is_binary(answer) do
-    correct_answer == answer
+    String.downcase(correct_answer) == String.downcase(answer)
   end
 
   def correct?(%Question{correct_answer: correct_answer}, answer)
@@ -93,4 +94,12 @@ defmodule OnCourse.Quiz.Session do
   end
 
   def correct?(_, _), do: false
+
+  defp incorrect_response(answers) when is_list(answers) do
+    {:incorrect, answers}
+  end
+
+  defp incorrect_response(answer) do
+    incorrect_response([answer])
+  end
 end

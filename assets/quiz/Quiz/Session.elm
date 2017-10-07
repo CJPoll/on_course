@@ -1,4 +1,4 @@
-module Quiz.Session exposing (Session, newSession, joined, joinQuiz, loadCurrentQuestion)
+module Quiz.Session exposing (Session, answerSelected, newSession, joined, joinQuiz, loadCurrentQuestion)
 
 import Quiz.Msg exposing (..)
 import Phoenix.Socket
@@ -39,6 +39,18 @@ quizRoom quizId =
     String.concat [ "quiz:", quizId ]
 
 
+answerSelected :
+    String
+    -> Session
+    -> ( Session, Cmd (Phoenix.Socket.Msg Msg) )
+answerSelected answer session =
+    sendMessage
+        "answer_selected"
+        (Json.Encode.object [ ( "answer", Json.Encode.string answer ) ])
+        (Just ReviewAnswer)
+        session
+
+
 joinQuiz :
     String
     -> Session
@@ -62,9 +74,7 @@ joinQuiz userId session =
                         |> Phoenix.Channel.onClose (always Noop)
 
                 ( newSocket, cmd ) =
-                    session.socket
-                        |> Phoenix.Socket.on "current_question" (quizRoom session.quizId) QuestionAsked
-                        |> Phoenix.Socket.join channel
+                    Phoenix.Socket.join channel session.socket
             in
                 ( { session | state = Joining, socket = newSocket }, cmd )
 
@@ -105,14 +115,44 @@ loadCurrentQuestion session =
 
 getQuestion : String -> Session -> ( Session, Cmd (Phoenix.Socket.Msg Msg) )
 getQuestion quizId session =
-    let
-        pusher =
-            session.quizId
-                |> quizRoom
-                |> Phoenix.Push.init "current_question"
-                |> Phoenix.Push.withPayload (Json.Encode.object [ ( "quiz_id", Json.Encode.string session.quizId ) ])
+    sendMessage
+        "current_question"
+        (Json.Encode.object [ ( "quiz_id", Json.Encode.string session.quizId ) ])
+        (Just QuestionAsked)
+        session
 
-        ( newSocket, cmd ) =
-            Phoenix.Socket.push pusher session.socket
-    in
-        ( { session | state = Connected, socket = newSocket }, cmd )
+
+sendMessage :
+    String
+    -> Json.Encode.Value
+    -> Maybe (Json.Encode.Value -> Msg)
+    -> Session
+    -> ( Session, Cmd (Phoenix.Socket.Msg Msg) )
+sendMessage message payload onSuccess session =
+    case onSuccess of
+        Nothing ->
+            let
+                pusher =
+                    session.quizId
+                        |> quizRoom
+                        |> Phoenix.Push.init message
+                        |> Phoenix.Push.withPayload payload
+
+                ( newSocket, cmd ) =
+                    Phoenix.Socket.push pusher session.socket
+            in
+                ( { session | state = Connected, socket = newSocket }, cmd )
+
+        Just msg ->
+            let
+                pusher =
+                    session.quizId
+                        |> quizRoom
+                        |> Phoenix.Push.init message
+                        |> Phoenix.Push.withPayload payload
+                        |> Phoenix.Push.onOk msg
+
+                ( newSocket, cmd ) =
+                    Phoenix.Socket.push pusher session.socket
+            in
+                ( { session | state = Connected, socket = newSocket }, cmd )

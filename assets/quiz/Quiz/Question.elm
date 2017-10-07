@@ -1,8 +1,11 @@
-module Quiz.Question exposing (Question(..), decode)
+module Quiz.Question exposing (Question(..), decode, render)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Html
+import Html exposing (Html, text, div, span)
+import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
+import Quiz.Msg exposing (..)
 
 
 type Question
@@ -44,3 +47,32 @@ decode body =
 
         Err reason ->
             Err reason
+
+
+render : Bool -> Question -> List String -> Html Msg
+render reviewing question answersGiven =
+    if reviewing then
+        text "Reviewing"
+    else
+        case question of
+            TrueFalse prompt ->
+                displayChoices prompt [ "True", "False" ]
+
+            MultipleChoice choices prompt ->
+                displayChoices prompt choices
+
+            TextInput prompt ->
+                text prompt
+
+
+displayChoices : String -> List String -> Html Msg
+displayChoices prompt choices =
+    div []
+        [ div [] [ text prompt ]
+        , div [] (List.map displayChoice choices)
+        ]
+
+
+displayChoice choice =
+    span [ class "choice", onClick (AnswerSelected choice) ]
+        [ text choice ]

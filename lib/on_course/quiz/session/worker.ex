@@ -49,6 +49,11 @@ defmodule OnCourse.Quiz.Session.Worker do
     GenServer.call(pid, :peek)
   end
 
+  @spec answer(t, [Question.answer]) :: Session.response
+  def answer(%__MODULE__{pid: pid}, answers) when is_pid(pid) do
+    GenServer.call(pid, {:answer, answers})
+  end
+
   # Callback Functions
 
   def init({%Session{} = session}) do
@@ -68,6 +73,11 @@ defmodule OnCourse.Quiz.Session.Worker do
   def handle_call({:authorized_user?, user}, _from, %State{session: %Session{} = session} = state) do
     authorized = Session.authorized_user?(session, user)
     {:reply, authorized, state}
+  end
+
+  def handle_call({:answer, answers}, _from, %State{session: session} = state) do
+    {reply, session} = Session.answer(session, answers)
+    {:reply, reply, %State{state | session: session}}
   end
 
   def handle_call(msg, _, state) do

@@ -9915,6 +9915,92 @@ var _fbonetti$elm_phoenix_socket$Phoenix_Socket$listen = F2(
 			});
 	});
 
+var _user$project$Quiz_Msg$ReviewAnswer = function (a) {
+	return {ctor: 'ReviewAnswer', _0: a};
+};
+var _user$project$Quiz_Msg$SessionJoined = {ctor: 'SessionJoined'};
+var _user$project$Quiz_Msg$AnswerSelected = function (a) {
+	return {ctor: 'AnswerSelected', _0: a};
+};
+var _user$project$Quiz_Msg$QuestionAsked = function (a) {
+	return {ctor: 'QuestionAsked', _0: a};
+};
+var _user$project$Quiz_Msg$PhoenixMsg = function (a) {
+	return {ctor: 'PhoenixMsg', _0: a};
+};
+var _user$project$Quiz_Msg$Noop = {ctor: 'Noop'};
+
+var _user$project$Quiz_Question$displayChoice = function (choice) {
+	return A2(
+		_elm_lang$html$Html$span,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('choice'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Events$onClick(
+					_user$project$Quiz_Msg$AnswerSelected(choice)),
+				_1: {ctor: '[]'}
+			}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(choice),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$Quiz_Question$displayChoices = F2(
+	function (prompt, choices) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(prompt),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						A2(_elm_lang$core$List$map, _user$project$Quiz_Question$displayChoice, choices)),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _user$project$Quiz_Question$render = F3(
+	function (reviewing, question, answersGiven) {
+		if (reviewing) {
+			return _elm_lang$html$Html$text('Reviewing');
+		} else {
+			var _p0 = question;
+			switch (_p0.ctor) {
+				case 'TrueFalse':
+					return A2(
+						_user$project$Quiz_Question$displayChoices,
+						_p0._0,
+						{
+							ctor: '::',
+							_0: 'True',
+							_1: {
+								ctor: '::',
+								_0: 'False',
+								_1: {ctor: '[]'}
+							}
+						});
+				case 'MultipleChoice':
+					return A2(_user$project$Quiz_Question$displayChoices, _p0._1, _p0._0);
+				default:
+					return _elm_lang$html$Html$text(_p0._0);
+			}
+		}
+	});
 var _user$project$Quiz_Question$TextInput = function (a) {
 	return {ctor: 'TextInput', _0: a};
 };
@@ -9955,45 +10041,33 @@ var _user$project$Quiz_Question$jsonSchema = _elm_lang$core$Json_Decode$oneOf(
 		}
 	});
 var _user$project$Quiz_Question$decode = function (body) {
-	var _p0 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Quiz_Question$jsonSchema, body);
-	if (_p0.ctor === 'Ok') {
-		if (_p0._0.ctor === 'IntermediateMult') {
+	var _p1 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Quiz_Question$jsonSchema, body);
+	if (_p1.ctor === 'Ok') {
+		if (_p1._0.ctor === 'IntermediateMult') {
 			return _elm_lang$core$Result$Ok(
-				A2(_user$project$Quiz_Question$MultipleChoice, _p0._0._0, _p0._0._1));
+				A2(_user$project$Quiz_Question$MultipleChoice, _p1._0._0, _p1._0._1));
 		} else {
-			switch (_p0._0._1) {
+			switch (_p1._0._1) {
 				case 'text_input':
 					return _elm_lang$core$Result$Ok(
-						_user$project$Quiz_Question$TextInput(_p0._0._0));
+						_user$project$Quiz_Question$TextInput(_p1._0._0));
 				case 'true_false':
 					return _elm_lang$core$Result$Ok(
-						_user$project$Quiz_Question$TrueFalse(_p0._0._0));
+						_user$project$Quiz_Question$TrueFalse(_p1._0._0));
 				default:
 					return _elm_lang$core$Native_Utils.crashCase(
 						'Quiz.Question',
 						{
-							start: {line: 32, column: 5},
-							end: {line: 46, column: 23}
+							start: {line: 35, column: 5},
+							end: {line: 49, column: 23}
 						},
-						_p0)('Not sure what happened here');
+						_p1)('Not sure what happened here');
 			}
 		}
 	} else {
-		return _elm_lang$core$Result$Err(_p0._0);
+		return _elm_lang$core$Result$Err(_p1._0);
 	}
 };
-
-var _user$project$Quiz_Msg$SessionJoined = {ctor: 'SessionJoined'};
-var _user$project$Quiz_Msg$AnswerSelected = function (a) {
-	return {ctor: 'AnswerSelected', _0: a};
-};
-var _user$project$Quiz_Msg$QuestionAsked = function (a) {
-	return {ctor: 'QuestionAsked', _0: a};
-};
-var _user$project$Quiz_Msg$PhoenixMsg = function (a) {
-	return {ctor: 'PhoenixMsg', _0: a};
-};
-var _user$project$Quiz_Msg$Noop = {ctor: 'Noop'};
 
 var _user$project$Quiz_Session$quizRoom = function (quizId) {
 	return _elm_lang$core$String$concat(
@@ -10018,10 +10092,73 @@ var _user$project$Quiz_Session$joined = function (session) {
 		session,
 		{state: _user$project$Quiz_Session$Connected});
 };
+var _user$project$Quiz_Session$sendMessage = F4(
+	function (message, payload, onSuccess, session) {
+		var _p0 = onSuccess;
+		if (_p0.ctor === 'Nothing') {
+			var pusher = A2(
+				_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+				payload,
+				A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Push$init,
+					message,
+					_user$project$Quiz_Session$quizRoom(session.quizId)));
+			var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, pusher, session.socket);
+			var newSocket = _p1._0;
+			var cmd = _p1._1;
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					session,
+					{state: _user$project$Quiz_Session$Connected, socket: newSocket}),
+				_1: cmd
+			};
+		} else {
+			var pusher = A2(
+				_fbonetti$elm_phoenix_socket$Phoenix_Push$onOk,
+				_p0._0,
+				A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+					payload,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$init,
+						message,
+						_user$project$Quiz_Session$quizRoom(session.quizId))));
+			var _p2 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, pusher, session.socket);
+			var newSocket = _p2._0;
+			var cmd = _p2._1;
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					session,
+					{state: _user$project$Quiz_Session$Connected, socket: newSocket}),
+				_1: cmd
+			};
+		}
+	});
+var _user$project$Quiz_Session$answerSelected = F2(
+	function (answer, session) {
+		return A4(
+			_user$project$Quiz_Session$sendMessage,
+			'answer_selected',
+			_elm_lang$core$Json_Encode$object(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'answer',
+						_1: _elm_lang$core$Json_Encode$string(answer)
+					},
+					_1: {ctor: '[]'}
+				}),
+			_elm_lang$core$Maybe$Just(_user$project$Quiz_Msg$ReviewAnswer),
+			session);
+	});
 var _user$project$Quiz_Session$getQuestion = F2(
 	function (quizId, session) {
-		var pusher = A2(
-			_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+		return A4(
+			_user$project$Quiz_Session$sendMessage,
+			'current_question',
 			_elm_lang$core$Json_Encode$object(
 				{
 					ctor: '::',
@@ -10032,24 +10169,12 @@ var _user$project$Quiz_Session$getQuestion = F2(
 					},
 					_1: {ctor: '[]'}
 				}),
-			A2(
-				_fbonetti$elm_phoenix_socket$Phoenix_Push$init,
-				'current_question',
-				_user$project$Quiz_Session$quizRoom(session.quizId)));
-		var _p0 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, pusher, session.socket);
-		var newSocket = _p0._0;
-		var cmd = _p0._1;
-		return {
-			ctor: '_Tuple2',
-			_0: _elm_lang$core$Native_Utils.update(
-				session,
-				{state: _user$project$Quiz_Session$Connected, socket: newSocket}),
-			_1: cmd
-		};
+			_elm_lang$core$Maybe$Just(_user$project$Quiz_Msg$QuestionAsked),
+			session);
 	});
 var _user$project$Quiz_Session$loadCurrentQuestion = function (session) {
-	var _p1 = session.state;
-	switch (_p1.ctor) {
+	var _p3 = session.state;
+	switch (_p3.ctor) {
 		case 'Disconnected':
 			return {ctor: '_Tuple2', _0: session, _1: _elm_lang$core$Platform_Cmd$none};
 		case 'Joining':
@@ -10063,8 +10188,8 @@ var _user$project$Quiz_Session$loadCurrentQuestion = function (session) {
 var _user$project$Quiz_Session$Joining = {ctor: 'Joining'};
 var _user$project$Quiz_Session$joinQuiz = F2(
 	function (userId, session) {
-		var _p2 = session.state;
-		switch (_p2.ctor) {
+		var _p4 = session.state;
+		switch (_p4.ctor) {
 			case 'Disconnected':
 				var channel = A2(
 					_fbonetti$elm_phoenix_socket$Phoenix_Channel$onClose,
@@ -10086,17 +10211,9 @@ var _user$project$Quiz_Session$joinQuiz = F2(
 								}),
 							_fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
 								_user$project$Quiz_Session$quizRoom(session.quizId)))));
-				var _p3 = A2(
-					_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
-					channel,
-					A4(
-						_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-						'current_question',
-						_user$project$Quiz_Session$quizRoom(session.quizId),
-						_user$project$Quiz_Msg$QuestionAsked,
-						session.socket));
-				var newSocket = _p3._0;
-				var cmd = _p3._1;
+				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, session.socket);
+				var newSocket = _p5._0;
+				var cmd = _p5._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -10119,60 +10236,16 @@ var _user$project$Quiz_Session$newSession = function (quizId) {
 	return {state: _user$project$Quiz_Session$Disconnected, quizId: quizId, socket: socket};
 };
 
-var _user$project$Quiz$displayChoice = function (choice) {
-	return A2(
-		_elm_lang$html$Html$span,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('choice'),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html_Events$onClick(
-					_user$project$Quiz_Msg$AnswerSelected(choice)),
-				_1: {ctor: '[]'}
-			}
-		},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(choice),
-			_1: {ctor: '[]'}
-		});
-};
 var _user$project$Quiz$view = function (model) {
 	var _p0 = model.question;
 	if (_p0.ctor === 'Nothing') {
 		return _elm_lang$html$Html$text('Loading question...');
 	} else {
-		var _p1 = _p0._0;
-		switch (_p1.ctor) {
-			case 'TrueFalse':
-				return _elm_lang$html$Html$text(_p1._0);
-			case 'MultipleChoice':
-				return A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(_p1._1),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								A2(_elm_lang$core$List$map, _user$project$Quiz$displayChoice, _p1._0)),
-							_1: {ctor: '[]'}
-						}
-					});
-			default:
-				return _elm_lang$html$Html$text(_p1._0);
-		}
+		return A3(
+			_user$project$Quiz_Question$render,
+			model.reviewing,
+			_p0._0,
+			{ctor: '[]'});
 	}
 };
 var _user$project$Quiz$subscriptions = function (model) {
@@ -10180,17 +10253,26 @@ var _user$project$Quiz$subscriptions = function (model) {
 };
 var _user$project$Quiz$update = F2(
 	function (msg, model) {
-		var _p2 = msg;
-		switch (_p2.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'Noop':
 				return A2(
 					_elm_lang$core$Debug$log,
 					'Noop',
 					{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
 			case 'AnswerSelected':
+				var _p2 = A2(_user$project$Quiz_Session$answerSelected, _p1._0, model.session);
+				var session = _p2._0;
+				var cmd = _p2._1;
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Quiz_Msg$PhoenixMsg, cmd)
+				};
+			case 'ReviewAnswer':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'QuestionAsked':
-				var _p3 = _user$project$Quiz_Question$decode(_p2._0);
+				var _p3 = _user$project$Quiz_Question$decode(_p1._0);
 				if (_p3.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
@@ -10206,7 +10288,7 @@ var _user$project$Quiz$update = F2(
 				}
 			case 'PhoenixMsg':
 				var oldSession = model.session;
-				var _p4 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p2._0, model.session.socket);
+				var _p4 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p1._0, model.session.socket);
 				var phoenixSocket = _p4._0;
 				var cmd = _p4._1;
 				var session = _elm_lang$core$Native_Utils.update(
@@ -10242,7 +10324,7 @@ var _user$project$Quiz$init = function (flags) {
 	var cmd = _p6._1;
 	return {
 		ctor: '_Tuple2',
-		_0: {session: session, quizId: flags.quizId, question: _elm_lang$core$Maybe$Nothing, userId: flags.userId},
+		_0: {session: session, quizId: flags.quizId, question: _elm_lang$core$Maybe$Nothing, userId: flags.userId, reviewing: false},
 		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Quiz_Msg$PhoenixMsg, cmd)
 	};
 };
@@ -10276,9 +10358,9 @@ var _user$project$Quiz$Flags = F2(
 	function (a, b) {
 		return {userId: a, quizId: b};
 	});
-var _user$project$Quiz$Model = F4(
-	function (a, b, c, d) {
-		return {session: a, quizId: b, userId: c, question: d};
+var _user$project$Quiz$Model = F5(
+	function (a, b, c, d, e) {
+		return {session: a, quizId: b, userId: c, question: d, reviewing: e};
 	});
 
 var Elm = {};
