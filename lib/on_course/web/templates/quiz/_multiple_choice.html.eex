@@ -1,0 +1,8 @@
+<%= @question.prompt %>
+
+<%= for option <- @options do %>
+  <fieldset class="<%= fieldset_class(option, @responses, @question.correct_answer) %>">
+    <input type="checkbox" name="responses[]" id="<%= option %>" value="<%= option %>"/>
+    <label for="<%= option %>"><%= option %></label>
+  </fieldset>
+<% end %>

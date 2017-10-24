@@ -32,13 +32,11 @@ defmodule OnCourse.Quiz.Session.Supervisor do
       {:ok, pid, _info} ->
         {:ok, %@child{pid: pid}}
 
-      :already_present ->
-        {:error, :already_present}
-
       {:error, {:already_started, pid}} ->
         {:ok, %@child{pid: pid}}
 
-      {:error, _reason} = err -> err
+      term ->
+        {:error, term}
     end
   end
 end

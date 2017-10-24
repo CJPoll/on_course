@@ -1,34 +1,36 @@
 module Quiz exposing (main, init, subscriptions, update, view)
 
-import Html exposing (text, Html)
+import Html exposing (text, Html, span, div, br)
+import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
 import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
 import Json.Encode
+import Json.Decode
 import Task
 import String
+import Quiz.Question as Question
+import Quiz.Session as Session
+import Quiz.Msg exposing (..)
 
 
-type Msg
-    = Noop
-    | PhoenixMsg (Phoenix.Socket.Msg Msg)
-    | JoinChannel String
-    | GetCurrentQuestion
-
-
-type alias Question =
-    { prompt : String
+type alias Flags =
+    { userId : String
+    , quizId : String
     }
 
 
 type alias Model =
-    { socket : Phoenix.Socket.Socket Msg
+    { session : Session.Session
     , quizId : String
-    , question : Maybe Question
+    , userId : String
+    , question : Maybe Question.Question
+    , reviewing : Bool
     }
 
 
-main : Program String Model Msg
+main : Program Flags Model Msg
 main =
     Html.programWithFlags
         { init = init
@@ -42,16 +44,22 @@ quizRoom quizId =
     String.concat [ "quiz:", quizId ]
 
 
-init : String -> ( Model, Cmd Msg )
-init quizId =
-    ( { socket = Phoenix.Socket.init "ws://on_course.dev:4000/socket/websocket"
-      , quizId = quizId
-      , question = Nothing
-      }
-    , String.concat [ "quiz:", quizId ]
-        |> Task.succeed
-        |> Task.perform JoinChannel
-    )
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    let
+        ( session, cmd ) =
+            flags.quizId
+                |> Session.newSession
+                |> Session.joinQuiz flags.userId
+    in
+        ( { session = session
+          , quizId = flags.quizId
+          , question = Nothing
+          , userId = flags.userId
+          , reviewing = False
+          }
+        , Cmd.map PhoenixMsg cmd
+        )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -61,48 +69,59 @@ update msg model =
             Debug.log "Noop"
                 ( model, Cmd.none )
 
+        AnswerSelected answer ->
+            let
+                ( session, cmd ) =
+                    Session.answerSelected answer model.session
+            in
+                ( model, Cmd.map PhoenixMsg cmd )
+
+        ReviewAnswer json_val ->
+            ( model, Cmd.none )
+
+        QuestionAsked body ->
+            case Question.decode body of
+                Ok question ->
+                    ( { model | question = Just question }, Cmd.none )
+
+                Err reason ->
+                    ( model, Cmd.none )
+
         PhoenixMsg msg ->
             let
                 ( phoenixSocket, cmd ) =
-                    Phoenix.Socket.update msg model.socket
+                    Phoenix.Socket.update msg model.session.socket
+
+                oldSession =
+                    model.session
+
+                session =
+                    { oldSession | socket = phoenixSocket }
             in
-                ( { model | socket = phoenixSocket }
+                ( { model | session = session }
                 , Cmd.map PhoenixMsg cmd
                 )
 
-        GetCurrentQuestion ->
+        SessionJoined ->
             let
-                push_ =
-                    model.quizId
-                        |> quizRoom
-                        |> Phoenix.Push.init "current_question"
-                        |> Phoenix.Push.withPayload (Json.Encode.object [ ( "quiz_id", Json.Encode.string model.quizId ) ])
-
-                ( socket, cmd ) =
-                    Phoenix.Socket.push push_ model.socket
+                ( session, cmd ) =
+                    model.session
+                        |> Session.joined
+                        |> Session.loadCurrentQuestion
             in
-                Debug.log "This is the current question"
-                    ( { model | socket = socket }, Cmd.map PhoenixMsg cmd )
-
-        JoinChannel channelName ->
-            let
-                channel =
-                    Phoenix.Channel.init channelName
-                        |> Phoenix.Channel.withPayload (Json.Encode.object [])
-                        |> Phoenix.Channel.onJoin (always GetCurrentQuestion)
-                        |> Phoenix.Channel.onClose (always Noop)
-
-                ( socket, cmd ) =
-                    Phoenix.Socket.join channel model.socket
-            in
-                ( { model | socket = socket }, Cmd.map PhoenixMsg cmd )
+                ( { model | session = session }, Cmd.map PhoenixMsg cmd )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Phoenix.Socket.listen model.socket PhoenixMsg
+    Phoenix.Socket.listen model.session.socket PhoenixMsg
 
 
 view : Model -> Html Msg
 view model =
-    text "Hi"
+    case model.question of
+        Nothing ->
+            text "Loading question..."
+
+        Just question ->
+            Question.render model.reviewing question []

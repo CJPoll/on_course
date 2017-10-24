@@ -1,1 +1,51 @@
 /* This file is for your main application css. */
+
+html
+{
+    box-sizing: border-box;
+}
+
+*, *:before, *:after
+{
+    box-sizing: inherit;
+}
+
+.choice
+{
+    padding: 8px;
+    border: dashed;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.choice:hover
+{
+    background-color: #D3D3D3;
+    cursor: pointer;
+}
+
+.answer-option
+{
+		max-width: 25%;
+}
+
+.answer-option-correct
+{
+		max-width: 25%;
+		background-color: green;
+		color: white;
+}
+
+.answer-option-incorrect
+{
+		max-width: 25%;
+		background-color: red;
+		color: white;
+}
+
+.answer-option-should-be-correct
+{
+		max-width: 25%;
+		background-color: orange;
+		color: white;
+}

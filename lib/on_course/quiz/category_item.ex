@@ -1,6 +1,6 @@
 defmodule OnCourse.Quiz.CategoryItem do
-  use Ecto.Schema
-  import Ecto.Changeset
+  use OnCourse.Model
+
   alias OnCourse.Quiz.Category
 
   @type name :: String.t
@@ -12,10 +12,15 @@ defmodule OnCourse.Quiz.CategoryItem do
   schema "category_items" do
     field :name, :string
 
-    belongs_to :category, OnCourse.Quiz.Category
+    belongs_to :category, Category
 
     timestamps()
   end
+
+  @type t :: %__MODULE__{
+    name: String.t,
+    category: Model.association(Category.t)
+  }
 
   @doc false
   def changeset(%__MODULE__{} = category_item, attrs) do
