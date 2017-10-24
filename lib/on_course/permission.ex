@@ -15,6 +15,8 @@ defmodule OnCourse.Permission do
     | Topic.t
     | {Topic.t, Quiz}
     | {Topic.t, Category}
+    | Category.t
+    | {Category.t, CategoryItem}
 
   @spec can?(User.t, action, resource) :: boolean
   def can?(%User{} = user, :view, %Course{id: course_id}) do

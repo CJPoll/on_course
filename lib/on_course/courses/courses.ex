@@ -19,7 +19,7 @@ defmodule OnCourse.Courses do
     |> Repo.insert
   end
 
-  @spec changeset_for(Course.t | Topic.t, %{}) :: Ecto.Changeset.t
+  @spec changeset_for(Course.t | Course.empty | Topic.t, %{}) :: Ecto.Changeset.t
   def changeset_for(%Course{} = course, params) do
     Course.changeset(course, params)
   end

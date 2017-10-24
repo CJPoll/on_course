@@ -113,32 +113,32 @@ defmodule OnCourse.Quiz.Session.Test do
     end
   end
 
-  describe "answer_question/2" do
+  describe "answer/2" do
     setup :make_session
 
     test "returns a :correct tuple if the answer is correct",
     %{session: %@test_module{questions: [q | _]} = session} do
-      assert {:correct, _} = @test_module.answer_question(session, q.correct_answer)
+      assert {:correct, _} = @test_module.answer(session, q.correct_answer)
     end
 
     test "returns a Session",
     %{session: %@test_module{questions: [q | _]} = session} do
       assert {_, %@test_module{}} =
-        @test_module.answer_question(session, q.correct_answer)
+        @test_module.answer(session, q.correct_answer)
     end
 
     test "puts the question into answered_questions",
     %{session: %@test_module{questions: [q | _]} = session} do
       answer = q.correct_answer
       assert {_, %@test_module{answered_questions: [{^q, _} | _]}} =
-        @test_module.answer_question(session, answer)
+        @test_module.answer(session, answer)
     end
 
     test "records the answer that was given",
     %{session: %@test_module{questions: [q | _]} = session} do
       answer = q.correct_answer
       assert {_, %@test_module{answered_questions: [{^q, ^answer} | _]}} =
-        @test_module.answer_question(session, answer)
+        @test_module.answer(session, answer)
     end
   end
 

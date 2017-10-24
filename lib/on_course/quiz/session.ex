@@ -6,7 +6,7 @@ defmodule OnCourse.Quiz.Session do
   alias OnCourse.Quiz
   alias OnCourse.Quiz.Question
 
-  @type response :: :correct | {:incorrect, Question.answer} | no_return
+  @type response :: :correct | {:incorrect, [Question.answer]} | no_return
   @type id :: String.t
 
   @type t :: %__MODULE__{
@@ -17,6 +17,13 @@ defmodule OnCourse.Quiz.Session do
     user: User.t
   }
 
+  @doc """
+  Creates a new session. The ID is a hash of the user id and topic id.
+
+  All categories and associated category_items must be loaded onto the topic;
+  this function does no interaction with the database - it only generates
+  questions from the loaded data.
+  """
   @spec new(User.t, Topic.t) :: t
   def new(%User{} = user, %Topic{} = topic) do
     id = identifier(user, topic)
@@ -45,6 +52,10 @@ defmodule OnCourse.Quiz.Session do
     |> String.downcase
   end
 
+  @spec authorized_user?(t, User.t) :: boolean
+  def authorized_user?(%__MODULE__{user: %User{id: id}}, %User{id: id}), do: true
+  def authorized_user?(%__MODULE__{}, _), do: false
+
   @spec peek(t) :: Question.t | nil
   def peek(%__MODULE__{questions: [next | _]}), do: next
   def peek(%__MODULE__{questions: []}), do: nil
@@ -55,20 +66,21 @@ defmodule OnCourse.Quiz.Session do
   end
   def pop(%__MODULE__{questions: []} = session), do: {session, nil}
 
-  @spec answer_question(t, Question.answer)
+  @spec answer(t, Question.answer)
   :: {response, t}
-  def answer_question(%__MODULE__{questions: []}, _answer) do
+  def answer(%__MODULE__{questions: []}, _answer) do
     raise "Quiz Session has no more questions, but received an answer"
   end
 
-  def answer_question(%__MODULE__{questions: [q | rest]} = session, answer) do
-    resp = if correct?(q, answer), do: :correct, else: {:incorrect, q.correct_answer}
+  def answer(%__MODULE__{questions: [q | rest]} = session, answer) do
+    resp =
+      if correct?(q, answer), do: :correct, else: incorrect_response(q.correct_answer)
     {resp, %__MODULE__{ session | questions: rest, answered_questions: [{q, answer} | session.answered_questions]}}
   end
 
   def correct?(%Question{correct_answer: correct_answer}, answer)
   when is_binary(correct_answer) and is_binary(answer) do
-    correct_answer == answer
+    String.downcase(correct_answer) == String.downcase(answer)
   end
 
   def correct?(%Question{correct_answer: correct_answer}, answer)
@@ -82,4 +94,12 @@ defmodule OnCourse.Quiz.Session do
   end
 
   def correct?(_, _), do: false
+
+  defp incorrect_response(answers) when is_list(answers) do
+    {:incorrect, answers}
+  end
+
+  defp incorrect_response(answer) do
+    incorrect_response([answer])
+  end
 end

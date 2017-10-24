@@ -1,7 +1,7 @@
 defmodule OnCourse.Courses.Course do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias OnCourse.Courses.Course
+  alias OnCourse.Courses.{Course, Topic}
   alias OnCourse.Accounts.User
 
   @type id :: String.t | pos_integer
@@ -16,10 +16,19 @@ defmodule OnCourse.Courses.Course do
     belongs_to :owner, OnCourse.Accounts.User
     many_to_many :enrollments, OnCourse.Accounts.User, join_through: "courses_enrollments"
 
-    has_many :topics, OnCourse.Courses.Topic
+    has_many :topics, Topic
 
     timestamps()
   end
+
+  @type t :: %__MODULE__{
+    name: String.t,
+    owner: User.t,
+    enrollments: [User.t],
+    topics: [Topic.t]
+  }
+
+  @type empty :: %__MODULE__{}
 
   @doc false
   def changeset(%Course{} = course, attrs) do

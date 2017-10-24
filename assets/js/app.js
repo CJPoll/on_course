@@ -18,7 +18,7 @@ function contentLoaded() {
 
     if (elmDiv) {
         const quizId = window.quizId;
-        const app = Elm.Quiz.embed(elmDiv, quizId);
+        const app = Elm.Quiz.embed(elmDiv, {quizId: quizId, userId: window.userId});
     }
 }
 
