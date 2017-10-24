@@ -11,15 +11,15 @@ defmodule OnCourse.Web.Quiz.Controller do
 
   plug :scrub_params, "topic_id" when action == :quiz_question
 
-  def quiz_question(%Plug.Conn{} = conn, %{"topic_id" => topic_id}) do
-    quiz_data(conn, topic_id, [], fn(conn, topic, question, _responses, _options) ->
-      render(conn, "quiz.html", topic: topic, question: question, responses: [])
-    end)
-  end
-
   def quiz_question(%Plug.Conn{} = conn, %{"topic_id" => topic_id, "responses" => responses}) do
     quiz_data(conn, topic_id, responses, fn(conn, topic, question, responses, options) ->
       render(conn, "answer_question.html", topic: topic, question: question, responses: responses, options: options)
+    end)
+  end
+
+  def quiz_question(%Plug.Conn{} = conn, %{"topic_id" => topic_id}) do
+    quiz_data(conn, topic_id, [], fn(conn, topic, question, _responses, _options) ->
+      render(conn, "quiz.html", topic: topic, question: question, responses: [])
     end)
   end
 

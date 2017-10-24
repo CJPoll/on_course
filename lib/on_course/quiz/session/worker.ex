@@ -10,7 +10,7 @@ defmodule OnCourse.Quiz.Session.Worker do
   defstruct [:pid]
   @type t :: %__MODULE__{}
 
-  defmodule State do
+  defmodule Data do
     defstruct [:session]
     @type t :: %__MODULE__{
       session: Session.t
@@ -57,27 +57,27 @@ defmodule OnCourse.Quiz.Session.Worker do
   # Callback Functions
 
   def init({%Session{} = session}) do
-    {:ok, %State{session: session}}
+    {:ok, %Data{session: session}}
   end
 
-  def handle_call(:id_token, _from, %State{session: %Session{} = session} = state) do
+  def handle_call(:id_token, _from, %Data{session: %Session{} = session} = state) do
     id_token = Session.identifier(session)
     {:reply, id_token, state}
   end
 
-  def handle_call(:peek, _from, %State{session: %Session{} = session} = state) do
+  def handle_call(:peek, _from, %Data{session: %Session{} = session} = state) do
     current_question = Session.peek(session)
     {:reply, current_question, state}
   end
 
-  def handle_call({:authorized_user?, user}, _from, %State{session: %Session{} = session} = state) do
+  def handle_call({:authorized_user?, user}, _from, %Data{session: %Session{} = session} = state) do
     authorized = Session.authorized_user?(session, user)
     {:reply, authorized, state}
   end
 
-  def handle_call({:answer, answers}, _from, %State{session: session} = state) do
+  def handle_call({:answer, answers}, _from, %Data{session: session} = state) do
     {reply, session} = Session.answer(session, answers)
-    {:reply, reply, %State{state | session: session}}
+    {:reply, reply, %Data{state | session: session}}
   end
 
   def handle_call(msg, _, state) do
