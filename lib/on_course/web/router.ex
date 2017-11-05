@@ -36,8 +36,9 @@ defmodule OnCourse.Web.Router do
     get "/topics/:topic_id", Topic.Controller, :show, as: :topic
 
     post "/topics/:topic_id/categories", Category.Controller, :create, as: :categories
-    get "/topics/:topic_id/quiz", Quiz.Controller, :quiz_question, as: :ask_question
-    post "/topics/:topic_id/quiz", Quiz.Controller, :quiz_question, as: :answer_question
+    get "/topics/:topic_id/quiz", Quiz.Controller, :quiz, as: :ask_question
+    post "/topics/:topic_id/quiz", Quiz.Controller, :quiz, as: :ask_question
+    get "/topics/:topic_id/quiz/next", Quiz.Controller, :next_question, as: :next_question
     get "/categories/:category_id", Category.Controller, :show, as: :category
     delete "/categories/:category_id", Category.Controller, :delete
 

@@ -21,7 +21,6 @@ defmodule OnCourse.Mixfile do
   def extra_applications(:test), do: [:ueberauth_github, :logger, :runtime_tools, :ex_unit, :crypto]
   def extra_applications(_), do: [:ueberauth_github, :logger, :runtime_tools, :crypto]
 
-  # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_),     do: ["lib"]
 
@@ -46,6 +45,7 @@ defmodule OnCourse.Mixfile do
   defp aliases do
     ["ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
      "ecto.reset": ["ecto.drop", "ecto.setup"],
+     "compile": ["compile --warnings-as-errors"],
      "test": ["ecto.create --quiet", "ecto.migrate", "test", "dialyzer --halt-exit-status"]]
   end
 end

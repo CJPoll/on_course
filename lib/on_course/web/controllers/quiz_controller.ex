@@ -11,9 +11,28 @@ defmodule OnCourse.Web.Quiz.Controller do
 
   plug :scrub_params, "topic_id" when action == :quiz_question
 
-  def quiz_question(%Plug.Conn{} = conn, %{"topic_id" => topic_id, "responses" => responses}) do
-    quiz_data(conn, topic_id, responses, fn(conn, topic, question, responses, options) ->
-      render(conn, "answer_question.html", topic: topic, question: question, responses: responses, options: options)
+  def next_question(conn, %{"topic_id" => topic_id}) do
+    quiz_data(conn, topic_id, fn(conn, _topic, session) ->
+      Quiz.next_question(session)
+      redirect(conn, to: "/topics/#{topic_id}/quiz")
+    end)
+  end
+
+  def quiz(%Plug.Conn{} = conn, %{"topic_id" => topic_id, "responses" => responses}) do
+    quiz_data(conn, topic_id, fn(conn, topic, session) ->
+      {question, responses} = Quiz.answer(session, responses)
+      render(conn, "answer_question.html", topic: topic, question: question, responses: responses)
+    end)
+  end
+
+  def quiz(%Plug.Conn{} = conn, %{"topic_id" => topic_id}) do
+    quiz_data(conn, topic_id, fn(conn, topic, session) ->
+      case Quiz.display(session) do
+        {:asking, question} ->
+          render(conn, "quiz.html", topic: topic, question: question, responses: [])
+        {:reviewing, question, responses} ->
+          render(conn, "answer_question.html", topic: topic, question: question, responses: responses)
+      end
     end)
   end
 
@@ -26,8 +45,8 @@ defmodule OnCourse.Web.Quiz.Controller do
   @type response :: String.t
   @type callback :: ((Plug.Conn.t, Topic.id, [response]) -> Plug.Conn.t)
 
-  @spec quiz_data(Plug.Conn.t, Topic.id, [response], callback) :: Plug.Conn.t
-  defp quiz_data(%Plug.Conn{} = conn, topic_id, responses, callback) do
+  @spec quiz_data(Plug.Conn.t, Topic.id, callback) :: Plug.Conn.t
+  defp quiz_data(%Plug.Conn{} = conn, topic_id, callback) do
     topic = Quiz.with_quiz_data(topic_id)
 
     cond do
@@ -48,10 +67,7 @@ defmodule OnCourse.Web.Quiz.Controller do
               session_worker
           end
 
-        question = Quiz.current_question(quiz)
-        options = Quiz.options(question)
-
-        callback.(conn, topic, question, responses, options)
+        callback.(conn, topic, quiz)
       true ->
         render(conn, ErrorView, "403.html", [])
     end

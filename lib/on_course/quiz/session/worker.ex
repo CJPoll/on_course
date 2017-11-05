@@ -1,5 +1,5 @@
 defmodule OnCourse.Quiz.Session.Worker do
-  use GenServer
+  use GenStateMachine, handle_event_function: true, state_enter: false
 
   require Logger
 
@@ -17,23 +17,25 @@ defmodule OnCourse.Quiz.Session.Worker do
     }
   end
 
+  @initial_state :asking
+
   # Client Functions
 
   @spec start_link(User.t, Topic.t)
-  :: GenServer.on_start
+  :: GenStateMachine.on_start
   def start_link(%User{} = user, %Topic{} = topic) do
     session = Session.new(user, topic)
-    GenServer.start_link(__MODULE__, {session}, name: {:global, session.id})
+    GenStateMachine.start_link(__MODULE__, {session}, name: {:global, session.id})
   end
 
   @spec authorized_user?(t, User.t) :: boolean
   def authorized_user?(%__MODULE__{pid: pid}, %User{} = user) do
-    GenServer.call(pid, {:authorized_user?, user})
+    GenStateMachine.call(pid, {:authorized_user?, user})
   end
 
   @spec id_token(t) :: Session.id | nil
   def id_token(%__MODULE__{pid: pid}) do
-    GenServer.call(pid, :id_token)
+    GenStateMachine.call(pid, :id_token)
   end
 
   @spec find_session(Session.id) :: nil | t
@@ -44,52 +46,89 @@ defmodule OnCourse.Quiz.Session.Worker do
     end
   end
 
+  @spec next_question(t) :: :ok
+  def next_question(%__MODULE__{pid: pid}) do
+    GenStateMachine.cast(pid, :next_question)
+  end
+
   @spec peek(t) :: Question.t | nil
   def peek(%__MODULE__{pid: pid}) when is_pid(pid) do
-    GenServer.call(pid, :peek)
+    GenStateMachine.call(pid, :peek)
   end
 
   @spec answer(t, [Question.answer]) :: Session.response
   def answer(%__MODULE__{pid: pid}, answers) when is_pid(pid) do
-    GenServer.call(pid, {:answer, answers})
+    GenStateMachine.call(pid, {:answer, answers})
+  end
+
+  @spec display(t) :: {Question.t, Session.response | :none}
+  def display(%__MODULE__{pid: pid}) do
+    GenStateMachine.call(pid, :display)
   end
 
   # Callback Functions
 
   def init({%Session{} = session}) do
-    {:ok, %Data{session: session}}
+    {:ok, @initial_state, %Data{session: session}}
   end
 
-  def handle_call(:id_token, _from, %Data{session: %Session{} = session} = state) do
-    id_token = Session.identifier(session)
-    {:reply, id_token, state}
+  defstate :asking do
+    defhandler {:call, from}, {:authorized_user?, %User{} = user}, %Data{session: %Session{} = session} = data do
+      answer = Session.authorized_user?(session, user)
+      {:next_state, current_state, data, [reply_action(from, answer)]}
+    end
+
+    defhandler {:call, from}, :id_token, %Data{session: %Session{} = session} = data do
+      id_token = Session.identifier(session)
+      {:next_state, current_state, data, [reply_action(from, id_token)]}
+    end
+
+    defhandler {:call, from}, :peek, %Data{session: %Session{} = session} = data do
+      current_question = Session.peek(session)
+      {:next_state, current_state, data, [reply_action(from, current_question)]}
+    end
+
+    defhandler {:call, from}, :display, %Data{session: %Session{} = session} = data do
+      current_question = Session.peek(session)
+      reply = {:asking, current_question}
+      {:next_state, current_state, data, [reply_action(from, reply)]}
+    end
+
+    defhandler {:call, from}, {:answer, answers}, %Data{session: %Session{} = session} = data do
+      {_, session} = Session.answer(session, answers)
+      [{q, _} | _] = session.answered_questions
+      reply = {q, session.last_answer}
+      {:next_state, :reviewing, %Data{data | session: session}, [reply_action(from, reply)]}
+    end
+
+    defhandler :cast, :next_question, data do
+      {:next_state, current_state, data}
+    end
   end
 
-  def handle_call(:peek, _from, %Data{session: %Session{} = session} = state) do
-    current_question = Session.peek(session)
-    {:reply, current_question, state}
-  end
+  defstate :reviewing do
+    defhandler {:call, from}, {:authorized_user?, %User{} = user}, %Data{session: %Session{} = session} = data do
+      answer = Session.authorized_user?(session, user)
+      {:next_state, current_state, data, [reply_action(from, answer)]}
+    end
 
-  def handle_call({:authorized_user?, user}, _from, %Data{session: %Session{} = session} = state) do
-    authorized = Session.authorized_user?(session, user)
-    {:reply, authorized, state}
-  end
+    defhandler {:call, from}, :display, %Data{session: %Session{} = session} = data do
+      [{q, _}] = session.answered_questions
+      reply = {:reviewing, q, session.last_answer}
+      {:next_state, current_state, data, [reply_action(from, reply)]}
+    end
 
-  def handle_call({:answer, answers}, _from, %Data{session: session} = state) do
-    {reply, session} = Session.answer(session, answers)
-    {:reply, reply, %Data{state | session: session}}
-  end
+    defhandler {:call, from}, {:answer, _answers}, %Data{session: %Session{} = session} = data do
+      [{q, _}] = session.answered_questions
+      reply = {q, session.last_answer}
+      {:next_state, :reviewing, %Data{data | session: session}, [reply_action(from, reply)]}
+    end
 
-  def handle_call(msg, _, state) do
-    Logger.error("#{__MODULE__} received message it didn't understand: #{inspect msg}")
-    {:reply, :unknown_message, state}
-  end
-
-  def handle_info(:timeout, state) do
-    {:stop, :timeout, state}
-  end
-
-  def handle_info(_, state) do
-    {:noreply, state}
+    defhandler :cast, :next_question, data do
+      case data.session.questions do
+        [] -> {:stop, :normal}
+        _ -> {:next_state, :asking, data}
+      end
+    end
   end
 end

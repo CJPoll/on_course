@@ -1,5 +1,5 @@
 defmodule OnCourse.Quiz.Session do
-  defstruct [:id, :topic, :user, questions: [], answered_questions: []]
+  defstruct [:id, :topic, :user, questions: [], answered_questions: [], last_answer: nil]
 
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.Topic
@@ -14,7 +14,8 @@ defmodule OnCourse.Quiz.Session do
     id: id,
     questions: [Question.t],
     topic: Topic.t,
-    user: User.t
+    user: User.t,
+    last_answer: nil | [Question.answer]
   }
 
   @doc """
@@ -73,9 +74,16 @@ defmodule OnCourse.Quiz.Session do
   end
 
   def answer(%__MODULE__{questions: [q | rest]} = session, answer) do
-    resp =
-      if correct?(q, answer), do: :correct, else: incorrect_response(q.correct_answer)
-    {resp, %__MODULE__{ session | questions: rest, answered_questions: [{q, answer} | session.answered_questions]}}
+    resp = response(q, answer)
+
+    session =
+      %__MODULE__{ session |
+        questions: rest,
+        answered_questions: [{q, answer} | session.answered_questions],
+        last_answer: answer
+      }
+
+    {resp, session}
   end
 
   def correct?(%Question{correct_answer: correct_answer}, answer)
@@ -94,6 +102,16 @@ defmodule OnCourse.Quiz.Session do
   end
 
   def correct?(_, _), do: false
+
+  def last_answer(%__MODULE__{last_answer: resp}) do
+    resp
+  end
+
+  def response(question, answers) do
+    if correct?(question, answers),
+    do: :correct,
+    else: incorrect_response(question.correct_answer)
+  end
 
   defp incorrect_response(answers) when is_list(answers) do
     {:incorrect, answers}

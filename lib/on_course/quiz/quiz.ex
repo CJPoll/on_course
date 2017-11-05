@@ -13,6 +13,9 @@ defmodule OnCourse.Quiz do
   alias OnCourse.Accounts.User
 
   defdelegate find_session(id), to: SessionWorker
+  defdelegate answer(session, answers), to: SessionWorker
+  defdelegate display(session), to: SessionWorker
+  defdelegate next_question(session), to: SessionWorker
 
   @doc """
   Adds a category to a given topic. The topic struct is a required parameter,
@@ -126,12 +129,14 @@ defmodule OnCourse.Quiz do
         end)
       end)
 
-    Enum.map(join, fn(e) ->
-      case :rand.uniform(2) do
-        1 -> Question.multiple_choice(e, item_index, category_index)
-        2 -> Question.true_false(e, item_index)
-      end
-    end)
+    join
+    |> Enum.map(fn(e) ->
+         case :rand.uniform(2) do
+           1 -> Question.multiple_choice(e, item_index, category_index)
+           2 -> Question.true_false(e, item_index)
+         end
+       end)
+    |> Enum.shuffle
   end
 
   @spec start_quiz(User.t, Topic.t)
