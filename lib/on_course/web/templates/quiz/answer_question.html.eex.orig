@@ -1,0 +1,18 @@
+<h1> Quizzing <%= @topic.name %></h1>
+
+<%= case @question.question_type do %>
+  <% :true_false -> %>
+    <%= render "_true_false.html", question: @question, responses: @responses %>
+  <% {:multiple_choice, options} -> %>
+    <%= render "_multiple_choice.html", question: @question, responses: @responses |> IO.inspect, options: options %>
+<% end %>
+
+<<<<<<< HEAD
+<%= link to: ask_question_path(@conn, :quiz_question, @topic.id) do %>
+  <button>
+    Done Reviewing
+  </button>
+<% end %>
+=======
+<%= link "Next Question", to: "/topics/#{@topic.id}/quiz/next" %>
+>>>>>>> Get quizzes more robust
