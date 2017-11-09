@@ -22,7 +22,7 @@ defmodule OnCourse.Quiz.Session.Worker do
   # Client Functions
 
   @spec start_link(User.t, Topic.t)
-  :: GenStateMachine.on_start
+  :: GenServer.on_start
   def start_link(%User{} = user, %Topic{} = topic) do
     session = Session.new(user, topic)
     GenStateMachine.start_link(__MODULE__, {session}, name: {:global, session.id})
@@ -61,7 +61,7 @@ defmodule OnCourse.Quiz.Session.Worker do
     GenStateMachine.call(pid, {:answer, answers})
   end
 
-  @spec display(t) :: {Question.t, Session.response | :none}
+  @spec display(t) :: {:asking, Question.t} | {:reviewing, Question.t, Question.answer}
   def display(%__MODULE__{pid: pid}) do
     GenStateMachine.call(pid, :display)
   end

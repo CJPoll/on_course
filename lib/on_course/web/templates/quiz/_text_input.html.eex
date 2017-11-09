@@ -1,0 +1,5 @@
+<%= @question.prompt %>
+
+<fieldset class="<%= fieldset_class(option, @responses, @question.correct_answer) %>">
+  <input type="text" name="responses[]" id="<%= option %>" value="<%= option %>"/>
+</fieldset>

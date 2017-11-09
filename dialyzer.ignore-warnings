@@ -1,1 +1,5 @@
 Unknown type prettypr:document/0
+Unknown type gen_statem:from/0
+Unknown type gen_statem:server_ref/0
+Unknown type gen_statem:start_opt/0
+Unknown type gen_statem:start_ret/0

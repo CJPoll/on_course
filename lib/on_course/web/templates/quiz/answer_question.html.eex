@@ -1,6 +1,8 @@
 <h1> Quizzing <%= @topic.name %></h1>
 
 <%= case @question.question_type do %>
+  <% :text_input -> %>
+    <%= render "_text_input.html", question: @question, responses: @responses %>
   <% :true_false -> %>
     <%= render "_true_false.html", question: @question, responses: @responses %>
   <% {:multiple_choice, options} -> %>

@@ -11,6 +11,7 @@ defmodule OnCourse.Courses.Topic do
 
     belongs_to :course, Course
     has_many :categories, OnCourse.Quiz.Category
+    has_many :prompt_questions, OnCourse.Quiz.PromptQuestion
 
     timestamps()
   end

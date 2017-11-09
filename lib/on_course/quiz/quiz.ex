@@ -6,7 +6,7 @@ defmodule OnCourse.Quiz do
   import Ecto.Query, warn: false
   alias OnCourse.Repo
 
-  alias OnCourse.Quiz.{Category, CategoryItem, Question, Session}
+  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion, Question, Session}
   alias OnCourse.Quiz.Session.Worker, as: SessionWorker
   alias OnCourse.Quiz.Session.Supervisor, as: SessionSupervisor
   alias OnCourse.Courses.Topic
@@ -38,6 +38,16 @@ defmodule OnCourse.Quiz do
     %CategoryItem{}
     |> CategoryItem.changeset(params)
     |> CategoryItem.category(category)
+    |> Repo.insert
+  end
+
+  @spec add_prompt_question(Topic.t, PromptQuestion.params)
+  :: {:ok, PromptQuestion.t}
+  | {:error, Ecto.Changeset.t}
+  def add_prompt_question(%Topic{} = topic, params) do
+    %PromptQuestion{}
+    |> PromptQuestion.changeset(params)
+    |> PromptQuestion.topic(topic)
     |> Repo.insert
   end
 
@@ -80,7 +90,11 @@ defmodule OnCourse.Quiz do
     q =
       from t in Topic,
         where: t.id == ^id,
-        preload: [:categories, categories: :category_items]
+      preload: [
+        :prompt_questions,
+        :categories,
+        categories: :category_items
+      ]
 
     Repo.one(q)
   end
@@ -94,48 +108,16 @@ defmodule OnCourse.Quiz do
   This function takes a topic and returns a list of questions designed to aid
   in learning the topic.
 
-  All categories and associated category_items must be loaded onto the topic;
-  this function does no interaction with the database - it only generates
-  questions from the loaded data.
+  All prompt_questions, categories and associated category_items must be loaded
+  onto the topic; this function does no interaction with the database - it only
+  generates questions from the loaded data.
   """
   @spec questions(Topic.t) :: [Question.t]
   def questions(%Topic{} = topic) do
-    category_names =
-      topic.categories
-      |> Enum.map(fn(cat) -> cat.name end)
-      |> MapSet.new
+    category_questions = category_questions(topic)
+    prompt_questions = Enum.map(topic.prompt_questions, &Question.from_prompt_question/1) 
 
-    item_names =
-      topic.categories
-      |> Enum.reduce([], fn(category, items) ->
-           category.category_items ++ items
-         end)
-      |> Enum.map(fn(cat_item) -> cat_item.name end)
-      |> MapSet.new
-
-    join = cross_join(category_names, item_names)
-
-    category_index =
-      topic.categories
-      |> Enum.map(fn(%Category{} = category) ->
-           {category.name, Enum.map(category.category_items, &(&1.name))}
-         end)
-      |> Map.new()
-
-    item_index =
-      Enum.reduce(topic.categories, %{}, fn(category, index) ->
-        Enum.reduce(category.category_items, index, fn(item, i) ->
-          Map.update(i, item.name, [category.name], fn(categories) -> [category.name | categories] end )
-        end)
-      end)
-
-    join
-    |> Enum.map(fn(e) ->
-         case :rand.uniform(2) do
-           1 -> Question.multiple_choice(e, item_index, category_index)
-           2 -> Question.true_false(e, item_index)
-         end
-       end)
+    category_questions ++ prompt_questions
     |> Enum.shuffle
   end
 
@@ -166,5 +148,43 @@ defmodule OnCourse.Quiz do
 
   def options(%Question{question_type: :text_input}) do
     nil
+  end
+
+  defp category_questions(%Topic{} = topic) do
+    category_names =
+      topic.categories
+      |> Enum.map(fn(cat) -> cat.name end)
+      |> MapSet.new
+
+    item_names =
+      topic.categories
+      |> Enum.reduce([], fn(category, items) ->
+           category.category_items ++ items
+         end)
+      |> Enum.map(fn(cat_item) -> cat_item.name end)
+      |> MapSet.new
+
+    join = cross_join(category_names, item_names)
+
+    category_index =
+      topic.categories
+      |> Enum.map(fn(%Category{} = category) ->
+           {category.name, Enum.map(category.category_items, &(&1.name))}
+         end)
+      |> Map.new()
+
+    item_index =
+      Enum.reduce(topic.categories, %{}, fn(category, index) ->
+        Enum.reduce(category.category_items, index, fn(item, i) ->
+          Map.update(i, item.name, [category.name], fn(categories) -> [category.name | categories] end )
+        end)
+      end)
+
+    Enum.map(join, fn(e) ->
+      case :rand.uniform(2) do
+        1 -> Question.multiple_choice(e, item_index, category_index)
+        2 -> Question.true_false(e, item_index)
+      end
+    end)
   end
 end

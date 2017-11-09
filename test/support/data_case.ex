@@ -13,6 +13,7 @@ defmodule OnCourse.DataCase do
   """
 
   use ExUnit.CaseTemplate
+  require Logger
 
   using do
     quote do
@@ -22,6 +23,7 @@ defmodule OnCourse.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import OnCourse.DataCase
+      alias OnCourse.Model
     end
   end
 
@@ -33,5 +35,47 @@ defmodule OnCourse.DataCase do
     end
 
     :ok
+  end
+
+  defmacro valid_params! do
+    quote do
+      test "valid params are valid", context do
+        cs = @test_module.changeset(context.valid_params)
+        assert cs.valid?, "valid_params in #{__MODULE__} weren't valid: #{inspect cs}"
+
+        case @repo_module.insert(cs) do
+          {:ok, _} -> :ok
+          {:error, cs} ->
+            flunk("valid_params in #{__MODULE__} weren't valid: #{inspect cs}")
+        end
+      end
+    end
+  end
+
+  defmacro optional(field) do
+    quote do
+      test "#{unquote(field)} is required", context do
+        cs =
+          context
+          |> OnCourse.Model.delete_field(unquote(field))
+          |> @test_module.changeset
+
+        assert cs.valid?
+      end
+    end
+  end
+
+  defmacro required(field) do
+    quote do
+      test "#{unquote(field)} is required", context do
+        cs =
+          context
+          |> OnCourse.Model.delete_field(unquote(field))
+          |> @test_module.changeset
+
+        refute cs.valid?
+        assert {:prompt, "can't be blank"} in Ectoplasm.errors_on(cs)
+      end
+    end
   end
 end

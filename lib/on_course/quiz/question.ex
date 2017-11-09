@@ -1,5 +1,5 @@
 defmodule OnCourse.Quiz.Question do
-  alias OnCourse.Quiz.{Category, CategoryItem}
+  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
   @type choice :: String.t
   @type question_type ::
     {:multiple_choice, [choice]}
@@ -33,6 +33,7 @@ defmodule OnCourse.Quiz.Question do
     missing_answers: answer,
     incorrect_answers: answer
   }
+
   def review(%__MODULE__{question_type: :true_false, correct_answer: true}, ["true"] = answer) do
     %{
       correct_answers: answer,
@@ -115,6 +116,14 @@ defmodule OnCourse.Quiz.Question do
 
   def correct?(category_name, item_name, item_index) do
     category_name in item_index[item_name]
+  end
+
+  def from_prompt_question(%PromptQuestion{} = q) do
+    %__MODULE__{
+      correct_answer: q.correct_answer,
+      prompt: q.prompt,
+      question_type: :text_input
+    }
   end
 end
 
