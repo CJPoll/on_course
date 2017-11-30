@@ -24,8 +24,18 @@ defmodule OnCourse.Quiz.Session.Worker do
   @spec start_link(User.t, Topic.t)
   :: GenServer.on_start
   def start_link(%User{} = user, %Topic{} = topic) do
+    Logger.debug("#{__MODULE__}.start_link/2")
     session = Session.new(user, topic)
     GenStateMachine.start_link(__MODULE__, {session}, name: {:global, session.id})
+  end
+
+  def state(%__MODULE__{pid: pid}) do
+    GenStateMachine.call(pid, :state)
+  end
+
+  @spec stop(t) :: :ok
+  def stop(%__MODULE__{pid: pid}) do
+    GenStateMachine.stop(pid)
   end
 
   @spec authorized_user?(t, User.t) :: boolean
@@ -102,6 +112,7 @@ defmodule OnCourse.Quiz.Session.Worker do
     end
 
     defhandler :cast, :next_question, data do
+      Logger.debug("#{__MODULE__}.next_question #{inspect current_state}")
       {:next_state, current_state, data}
     end
   end
@@ -113,22 +124,40 @@ defmodule OnCourse.Quiz.Session.Worker do
     end
 
     defhandler {:call, from}, :display, %Data{session: %Session{} = session} = data do
-      [{q, _}] = session.answered_questions
+      [{q, _} | _] = session.answered_questions
       reply = {:reviewing, q, session.last_answer}
       {:next_state, current_state, data, [reply_action(from, reply)]}
     end
 
+    defhandler {:call, from}, :peek, %Data{session: %Session{} = session} = data do
+      [{current_question, _} | _] = session.answered_questions
+      {:next_state, current_state, data, [reply_action(from, current_question)]}
+    end
+
     defhandler {:call, from}, {:answer, _answers}, %Data{session: %Session{} = session} = data do
-      [{q, _}] = session.answered_questions
+      [{q, _} | _] = session.answered_questions
       reply = {q, session.last_answer}
-      {:next_state, :reviewing, %Data{data | session: session}, [reply_action(from, reply)]}
+      {:next_state, :reviewing, data, [reply_action(from, reply)]}
     end
 
     defhandler :cast, :next_question, data do
+      Logger.debug("#{__MODULE__}.next_question #{inspect current_state}")
       case data.session.questions do
-        [] -> {:stop, :normal}
-        _ -> {:next_state, :asking, data}
+        [] ->
+          Logger.debug("Stopping - no questions")
+          {:stop, :normal}
+        _ ->
+          Logger.debug("Next state asking")
+          {:next_state, :asking, data}
       end
     end
+  end
+
+  def handle_event({:call, from}, :state, current_state, %Data{} = data) do
+    {:next_state, current_state, data, [reply_action(from, data)]}
+  end
+
+  def terminate(reason, state, _data) do
+    Logger.info("Terminating session: #{inspect reason} in state: #{inspect state}")
   end
 end

@@ -4,7 +4,7 @@
   <form method="post" action="/categories/<%= @category.id %>/category_items">
     <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>" />
     <label>Add Category Item</label>
-    <input type="text" name="category_item[name]"</input>
+    <input type="text" name="category_item[name]" autofocus />
 
     <input type="submit" value="Add" />
   </form>

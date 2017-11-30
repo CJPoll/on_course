@@ -1,0 +1,13 @@
+<form method="post" action="/topics/<%= @topic.id %>/prompt_questions">
+  <fieldset>
+    <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>" />
+    <legend>Add Vocabulary</legend>
+    <label for="prompt_question[prompt]">Prompt</label>
+    <input type="text" name="prompt_question[prompt]"</input>
+
+    <label>Correct Answer</label>
+    <input type="text" name="prompt_question[correct_answer]"</input>
+
+    <input type="submit" value="Add" />
+  </fieldset>
+</form>

@@ -14,7 +14,7 @@ defmodule OnCourse.Quiz.Session.Supervisor do
   end
 
   def init(_) do
-    child_spec = [worker(@child, [])]
+    child_spec = [worker(@child, [], restart: :transient)]
     opts = [strategy: :simple_one_for_one]
 
     supervise(child_spec, opts)

@@ -1,0 +1,9 @@
+<form method="post" action="/topics/<%= @topic.id %>/categories">
+  <fieldset>
+  <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>" />
+  <legend>Add Category</legend>
+  <input type="text" name="category[name]"</input>
+
+  <input type="submit" value="Add" />
+  </fieldset>
+</form>

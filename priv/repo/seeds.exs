@@ -1,6 +1,6 @@
 alias OnCourse.Accounts.User
 alias OnCourse.Courses.{Course, Topic}
-alias OnCourse.Quiz.{Category, CategoryItem}
+alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
 alias OnCourse.Repo
 
 admin =
@@ -53,4 +53,10 @@ Repo.insert!(%CategoryItem{
 Repo.insert!(%CategoryItem{
   name: "Cargo Pants",
   category_id: category_2.id
+})
+
+Repo.insert!(%PromptQuestion{
+  prompt: "What is the first letter of the alphabet?",
+  correct_answer: "A",
+  topic_id: topic.id
 })

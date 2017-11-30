@@ -1,25 +1,36 @@
 <h2> <%= @topic.name %> </h2>
 
+<%= link "Take quiz!", to: "/topics/#{@topic.id}/quiz" %>
+
+<br/>
+<br/>
+
 <%= if Permission.can?(@current_user, :create, {@topic, OnCourse.Quiz.Category}) do %>
-  <form method="post" action="/topics/<%= @topic.id %>/categories">
-    <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>" />
-    <label>Add Category</label>
-    <input type="text" name="category[name]"</input>
-
-    <input type="submit" value="Add" />
-  </form>
+  <%= render OnCourse.Web.Category.View, "_form.html", conn: @conn, topic: @topic %>
 <% end %>
 
-<%= if Permission.can?(@current_user, :modify, {@topic, OnCourse.Quiz}) do %>
-  <a href="#">Edit Categorization</a>
+<%= if Permission.can?(@current_user, :create, {@topic, OnCourse.Quiz.PromptQuestion}) do %>
+  <%= render OnCourse.Web.PromptQuestion.View, "_form.html", conn: @conn, topic: @topic %>
 <% end %>
 
-<%= if Ecto.assoc_loaded?(@topic.categories) and length(@topic.categories) > 0 do %>
-  <br/>
-  <%= link "Take quiz!", to: "/topics/#{@topic.id}/quiz" %>
-  <ul class="categories">
-    <%= for category <- @topic.categories do %>
-      <li><%= link category.name, to: "/categories/#{category.id}" %> <%= link "X", to: "/categories/#{category.id}", method: :delete %></li>
-    <% end %>
-  </ul>
-<% end %>
+<br/>
+
+<ul class="prompt_questions">
+  <%= for prompt_question <- @topic.prompt_questions do %>
+    <li>
+      <%= link "X", to: "/prompt_questions/#{prompt_question.id}", method: :delete %>
+      <div class="prompt">
+        <%= prompt_question.prompt %>
+      </div>
+      <div class="answer">
+        <%= prompt_question.correct_answer %>
+      </div>
+    </li>
+  <% end %>
+</ul>
+<br/>
+<ul class="categories">
+  <%= for category <- @topic.categories do %>
+    <li><%= link category.name, to: "/categories/#{category.id}" %> <%= link "X", to: "/categories/#{category.id}", method: :delete %></li>
+  <% end %>
+</ul>

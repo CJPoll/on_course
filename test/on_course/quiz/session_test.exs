@@ -48,23 +48,6 @@ defmodule OnCourse.Quiz.Session.Test do
     end
   end
 
-  describe "pop/1" do
-    setup :make_session
-
-    test "returns the next question in the list (if there is one)", %{session: %@test_module{questions: [q | _]} = session} do
-      assert {_, %Question{} = question} = @test_module.pop(session)
-      assert question == q
-    end
-
-    test "returns the modified session", %{session: %@test_module{questions: [q | rest]} = session} do
-      assert {%@test_module{questions: ^rest}, ^q} = @test_module.pop(session)
-    end
-
-    test "returns nil if the list is empty", %{session: session} do
-      assert {_, nil} = @test_module.pop(%@test_module{session | questions: []})
-    end
-  end
-
   describe "correct?/2 (boolean)" do
     setup :boolean_question
 

@@ -3,8 +3,8 @@ defmodule OnCourse.Repo.Migrations.CreateOnCourse.Courses.Enrollment do
 
   def change do
     create table(:courses_enrollments) do
-      add :course_id, references(:courses_courses, on_delete: :nothing), null: false
-      add :user_id, references(:accounts_users, on_delete: :nothing), null: false
+      add :course_id, references(:courses_courses, on_delete: :delete_all), null: false
+      add :user_id, references(:accounts_users, on_delete: :delete_all), null: false
 
       timestamps()
     end

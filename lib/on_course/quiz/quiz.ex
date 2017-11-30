@@ -61,10 +61,14 @@ defmodule OnCourse.Quiz do
     SessionWorker.peek(session)
   end
 
-  @spec delete(Category.t)
-  :: {:ok, Category.t}
+  @spec delete(Category.t | PromptQuestion.t)
+  :: {:ok, Category.t | PromptQuestion.t}
   | {:error, Ecto.Changeset.t}
   def delete(%Category{} = category) do
+    Repo.delete(category)
+  end
+
+  def delete(%PromptQuestion{} = category) do
     Repo.delete(category)
   end
 
@@ -89,12 +93,14 @@ defmodule OnCourse.Quiz do
   def with_quiz_data(id) when is_binary(id) or is_integer(id) do
     q =
       from t in Topic,
+        left_join: pq in PromptQuestion, on: pq.topic_id == t.id,
+        left_join: c in Category, on: c.topic_id == t.id,
+        left_join: ci in CategoryItem, on: ci.category_id == c.id,
         where: t.id == ^id,
-      preload: [
-        :prompt_questions,
-        :categories,
-        categories: :category_items
-      ]
+        preload: [
+          prompt_questions: pq,
+          categories: {c, category_items: ci}
+        ]
 
     Repo.one(q)
   end

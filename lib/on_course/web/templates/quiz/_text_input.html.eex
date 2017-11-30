@@ -1,5 +1,22 @@
 <%= @question.prompt %>
 
-<fieldset class="<%= fieldset_class(option, @responses, @question.correct_answer) %>">
-  <input type="text" name="responses[]" id="<%= option %>" value="<%= option %>"/>
+<fieldset>
+  <%= case @responses do %>
+    <% [] -> %>
+      <input class="wide" type="text" name="responses[]" autofocus />
+    <% [response] -> %>
+      <label>
+        You Put:
+      </label>
+      <p class="<%= fieldset_class(List.first(@responses), @responses, @question.correct_answer) %>">
+        <%= response %>
+      </p>
+      <br/>
+      <label>
+        Correct Answer:
+      </label>
+      <p>
+        <%= List.first(@question.correct_answer) %>
+      </p>
+  <% end %>
 </fieldset>

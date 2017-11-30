@@ -1,11 +1,11 @@
 <%= @question.prompt %>
 
 <fieldset class="<%= fieldset_class("true", @responses, @question.correct_answer) %>">
-  <input type="radio" name="responses[]" id="frue" value="true" required>
-  <label for="True">True</label>
+  <input type="radio" name="responses[]" id="true" value="true" required>
+  <label for="true">True</label>
 </fieldset>
 <fieldset class="<%= fieldset_class("false", @responses, @question.correct_answer) %>">
   <input type="radio" name="responses[]" id="false" value="false">
-  <label for="False">False</label>
+  <label for="false">False</label>
 </fieldset>
 

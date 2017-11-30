@@ -42,6 +42,6 @@ data.db:
 web.main:
   start: mix phx.server
   ports:
-    - tcp:80:4000
-    - tcp:443:4000
+    - tcp:80:4080
+    - tcp:443:4080
     - tcp:4369:4369

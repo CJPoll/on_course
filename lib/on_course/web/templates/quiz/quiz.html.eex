@@ -4,6 +4,8 @@
   <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>">
 
   <%= case @question.question_type do %>
+    <% :text_input -> %>
+      <%= render "_text_input.html", question: @question, responses: [] %>
     <% :true_false -> %>
       <%= render "_true_false.html", question: @question, responses: [] %>
     <% {:multiple_choice, options} -> %>

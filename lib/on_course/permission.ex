@@ -3,7 +3,7 @@ defmodule OnCourse.Permission do
   alias OnCourse.Courses.{Course, Topic}
   alias OnCourse.Quiz
   alias OnCourse.Quiz.Category
-  alias OnCourse.Quiz.{Category, CategoryItem}
+  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
   alias OnCourse.Repo
 
   import Ecto.Query, only: [from: 2]
@@ -49,6 +49,14 @@ defmodule OnCourse.Permission do
         select: t.id
 
     if Repo.one(q), do: true, else: false
+  end
+
+  def can?(%User{} = user, :create, {%Topic{} = topic, PromptQuestion}) do
+    owns?(user, topic)
+  end
+
+  def can?(%User{} = user, :delete, {%Topic{} = topic, PromptQuestion}) do
+    owns?(user, topic)
   end
 
   def can?(%User{id: user_id}, :view, %Topic{id: topic_id}) do

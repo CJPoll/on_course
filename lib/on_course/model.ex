@@ -9,6 +9,7 @@ defmodule OnCourse.Model do
       import Ecto.Changeset
       alias OnCourse.Model
       import OnCourse.Model
+      import Ecto.Query
 
       @type id :: Model.id
     end

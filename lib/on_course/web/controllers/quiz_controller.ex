@@ -19,6 +19,7 @@ defmodule OnCourse.Web.Quiz.Controller do
   end
 
   def quiz(%Plug.Conn{} = conn, %{"topic_id" => topic_id, "responses" => responses}) do
+    Logger.debug("#{__MODULE__}.")
     quiz_data(conn, topic_id, fn(conn, topic, session) ->
       {question, responses} = Quiz.answer(session, responses)
       render(conn, "answer_question.html", topic: topic, question: question, responses: responses)
@@ -55,6 +56,7 @@ defmodule OnCourse.Web.Quiz.Controller do
         quiz =
           case session do
             nil ->
+              Logger.debug("============== Starting Session ===============")
               {:ok, session_worker} = OnCourse.Quiz.start_quiz(conn.assigns.current_user, topic)
               session_worker
             %SessionWorker{} = session_worker->

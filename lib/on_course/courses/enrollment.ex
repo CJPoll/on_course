@@ -16,5 +16,7 @@ defmodule OnCourse.Courses.Enrollment do
     enrollment
     |> cast(attrs, [])
     |> validate_required([])
+    |> foreign_key_constraint(:course_id)
+    |> foreign_key_constraint(:user_id)
   end
 end

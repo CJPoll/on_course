@@ -120,7 +120,7 @@ defmodule OnCourse.Quiz.Question do
 
   def from_prompt_question(%PromptQuestion{} = q) do
     %__MODULE__{
-      correct_answer: q.correct_answer,
+      correct_answer: [q.correct_answer],
       prompt: q.prompt,
       question_type: :text_input
     }

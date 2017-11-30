@@ -3,14 +3,22 @@ defmodule OnCourse.Quiz.Session.Worker.Test do
 
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.Topic
-  alias OnCourse.Quiz.{Category, CategoryItem}
+  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
 
   @test_module OnCourse.Quiz.Session.Worker
 
   describe "start_link/2" do
     setup do
       user = %User{id: 1}
-      topic = %Topic{id: 1, categories: [%Category{name: "category", category_items: [%CategoryItem{name: "category_item"}]}]}
+      topic = %Topic{
+        id: 1,
+        categories: [
+          %Category{
+            name: "category",
+            category_items: [
+              %CategoryItem{name: "category_item"}
+            ]}],
+        prompt_questions: [%PromptQuestion{prompt: "What is 2+2?", correct_answer: "4"}]}
 
       state =
         %{

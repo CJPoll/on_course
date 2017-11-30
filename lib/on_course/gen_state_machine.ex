@@ -50,7 +50,9 @@ defmodule GenStateMachine do
             end
           false ->
             quote do
-              def handle_event(unquote(event_type), unquote(msg), unquote(state), unquote(data)) do
+              def handle_event(unquote(event_type), unquote(msg) = msg, unquote(state) = current_state, unquote(data)) do
+                IO.inspect current_state
+                IO.inspect msg
                 unquote(block)
               end
             end
@@ -104,6 +106,11 @@ defmodule GenStateMachine do
       name ->
         :gen_statem.start_link(name, module, args, Keyword.delete(opts, :name))
     end
+  end
+
+  @spec stop(t) :: :ok
+  def stop(ref) do
+    :gen_statem.stop(ref)
   end
 
   @spec call(t, message) :: reply

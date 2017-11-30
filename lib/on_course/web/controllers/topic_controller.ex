@@ -20,6 +20,10 @@ defmodule OnCourse.Web.Topic.Controller do
       Permission.can?(conn.assigns.current_user, :create, {course, Topic}) ->
         case Courses.add_topic(course, topic_params) do
           {:ok, %Topic{} = topic} ->
+            topic =
+              topic
+              |> Repo.preload(:categories)
+              |> Repo.preload(:prompt_questions)
             render(conn, "show.html", topic: topic)
           {:error, cs} ->
             render(conn, "new.html", changeset: cs)
@@ -48,6 +52,7 @@ defmodule OnCourse.Web.Topic.Controller do
       topic_id
       |> Courses.topic
       |> Repo.preload(:categories)
+      |> Repo.preload(:prompt_questions)
 
     cond do
       topic == nil ->
