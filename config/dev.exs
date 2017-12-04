@@ -6,32 +6,6 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
-config :on_course, OnCourse.Web.Endpoint,
-  http: [port: 4080],
-  debug_errors: true,
-  code_reloader: true,
-  check_origin: false,
-  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
-                    cd: Path.expand("../assets", __DIR__)]]
-
-config :ueberauth, Ueberauth,
-  providers: [
-      github: {Ueberauth.Strategy.Github, [default_scope: "user:email"]}
-  ]
-
-config :ueberauth, Ueberauth.Strategy.Github.OAuth,
-  client_id: System.get_env("GITHUB_CLIENT_ID"),
-  client_secret: System.get_env("GITHUB_CLIENT_SECRET")
-
-config :guardian, Guardian,
-  allowed_algos: ["HS512"], # optional
-  verify_module: Guardian.JWT,  # optional
-  issuer: "OnCourse",
-  ttl: { 30, :days  },
-  allowed_drift: 2000,
-  verify_issuer: true, # optional
-  secret_key: "gQfrBbbYqTmQ9mlYJPMGOs4veWCjb4nbShci6qAcVfaB9VNSZohuZ2BsfwRykN10",
-  serializer: OnCourse.GuardianSerializer
 
 # ## SSL Support
 #
@@ -51,6 +25,7 @@ config :guardian, Guardian,
 
 # Watch static and templates for browser reloading.
 config :on_course, OnCourse.Web.Endpoint,
+  url: [host: {:system, "HOST"}, port: {:system, "PORT"}],
   live_reload: [
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
@@ -66,11 +41,3 @@ config :logger, :console, format: "[$level] $message\n"
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
-
-config :on_course, OnCourse.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("DATA_DB_USER"),
-  password: System.get_env("DATA_DB_PASS"),
-  hostname: System.get_env("DATA_DB_HOST"),
-  database: "on_course_dev",
-  pool_size: 10

@@ -28,11 +28,8 @@ run.config:
     - assets/brunch-config.js
     - assets/package.json
     - assets/package-lock.json
-    - assets/quiz/elm-package.json
 
   extra_steps:
-      #- cd assets && npm install
-      #- cd assets/quiz && elm-package install
     - MIX_ENV=test mix dialyzer --plt
 
 
@@ -41,7 +38,3 @@ data.db:
 
 web.main:
   start: mix phx.server
-  ports:
-    - tcp:80:4080
-    - tcp:443:4080
-    - tcp:4369:4369
