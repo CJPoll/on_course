@@ -1,12 +1,37 @@
 <div>
   <h3><%= @course.name %></h3>
 
-  <%= if Permission.can?(@current_user, :create, {@course, OnCourse.Courses.Topic}) do %>
-  <a href="<%= new_topic_path(@conn, :new, @course) %>"> Add Topic </a>
+  <%= if Permission.can?(@current_user, :create, {@course, OnCourse.Courses.Module}) do %>
+    <div>
+      <%= render "_module_form.html", changeset: @module_changeset, action: modules_path(@conn, :create_module, @course) %>
+    </div>
   <% end %>
-  <ul>
-    <%= for topic <- @course.topics do %>
-      <li><a href="<%= topic_path(@conn, :show, topic) %>"><%= topic.name %></a></li>
+
+  <%= if Permission.can?(@current_user, :create, {@course, OnCourse.Courses.Topic}) do %>
+    <%= unless @course.modules == [] do %>
+      <div>
+        <%= render OnCourse.Web.Topic.View, "_form.html", changeset: @topic_changeset, action: topics_path(@conn, :create, @course), modules: @course.modules %>
+      </div>
     <% end %>
-  </ul>
+  <% end %>
+
+  <h3>Topics</h3>
+  <%= case @topics do %>
+    <% topics when topics == %{} -> %>
+      Uh oez! Looks like there aren't any topics in this course.
+    <% %{} = topics -> %>
+      <ul>
+        <%= for module_name <- Map.keys(topics) do %>
+          <h4><%= module_name %></h4>
+          <%= for topic <- Map.get(topics, module_name, []) do %>
+            <li>
+              <a href="<%= topic_path(@conn, :show, topic) %>"><%= topic.name %></a>
+              <%= if Permission.can?(@current_user, :quiz, topic) do %>
+                <a href="<%= ask_question_path(@conn, :quiz, topic) %>"> Take Quiz </a>
+              <% end %>
+            </li>
+          <% end %>
+        <% end %>
+      </ul>
+  <% end %>
 </div>

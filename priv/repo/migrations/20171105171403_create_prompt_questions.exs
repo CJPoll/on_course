@@ -6,7 +6,7 @@ defmodule OnCourse.Repo.Migrations.CreatePromptQuestions do
       add :prompt, :string, null: false
       add :correct_answer, :string, null: false
 
-      add :topic_id, references(:course_topics, on_delete: :delete_all), null: false
+      add :topic_id, references(:courses_topics, on_delete: :delete_all), null: false
 
       timestamps()
     end

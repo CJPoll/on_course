@@ -6,10 +6,10 @@ defmodule OnCourse.Model do
   defmacro __using__(_) do
     quote do
       use Ecto.Schema
-      import Ecto.Changeset
-      alias OnCourse.Model
-      import OnCourse.Model
-      import Ecto.Query
+      import Ecto.{Changeset, Query}
+
+      alias unquote(__MODULE__)
+      import unquote(__MODULE__)
 
       @type id :: Model.id
     end

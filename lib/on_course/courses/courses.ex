@@ -6,7 +6,7 @@ defmodule OnCourse.Courses do
   import Ecto.Query, warn: false
   alias OnCourse.Repo
 
-  alias OnCourse.Courses.{Course, Topic}
+  alias OnCourse.Courses.{Course, Module, Topic}
   alias OnCourse.Accounts.User
 
   @spec add_topic(Course.t, Topic.params)
@@ -19,6 +19,16 @@ defmodule OnCourse.Courses do
     |> Repo.insert
   end
 
+  @spec add_module(Course.t, Module.params)
+  :: {:ok, Topic.t}
+  | {:error, Ecto.Changeset.t}
+  def add_module(%Course{} = course, params) do
+    %Module{}
+    |> Module.changeset(params)
+    |> Module.course(course)
+    |> Repo.insert
+  end
+
   @spec changeset_for(Course.t | Course.empty | Topic.t, %{}) :: Ecto.Changeset.t
   def changeset_for(%Course{} = course, params) do
     Course.changeset(course, params)
@@ -26,6 +36,10 @@ defmodule OnCourse.Courses do
 
   def changeset_for(%Topic{} = topic, params) do
     Topic.changeset(topic, params)
+  end
+
+  def changeset_for(%Module{} = module, params) do
+    Module.changeset(module, params)
   end
 
   @spec enrolled(User.t | User.id) :: [Course.t]
@@ -73,5 +87,39 @@ defmodule OnCourse.Courses do
     |> Course.changeset(course_params)
     |> Course.owner(owner)
     |> Repo.insert
+  end
+
+  @spec topics_by_module([Topic.t]) :: %{Module.name => Topic.t}
+  @doc """
+  Given a list of topics, returns the topics grouped by module name
+
+  iex> topics_by_module([
+    %OnCourse.Courses.Topic{name: "topic1", module: %OnCourse.Courses.Module{name: "module1"}},
+    %OnCourse.Courses.Topic{name: "topic2", module: %OnCourse.Courses.Module{name: "module1"}},
+    %OnCourse.Courses.Topic{name: "topic3", module: %OnCourse.Courses.Module{name: "module1"}},
+    %OnCourse.Courses.Topic{name: "topic4", module: %OnCourse.Courses.Module{name: "module2"}},
+    %OnCourse.Courses.Topic{name: "topic5", module: %OnCourse.Courses.Module{name: "module2"}}
+  ])
+  %{
+    "module1" => [
+      %OnCourse.Courses.Topic{name: "topic1", module: %OnCourse.Courses.Module{name: "module1"}},
+      %OnCourse.Courses.Topic{name: "topic2", module: %OnCourse.Courses.Module{name: "module1"}},
+      %OnCourse.Courses.Topic{name: "topic3", module: %OnCourse.Courses.Module{name: "module1"}}
+    ],
+    "module2" => [
+      %OnCourse.Courses.Topic{name: "topic4", module: %OnCourse.Courses.Module{name: "module2"}},
+      %OnCourse.Courses.Topic{name: "topic5", module: %OnCourse.Courses.Module{name: "module2"}}
+    ]
+  }
+  """
+  def topics_by_module(topics) when is_list(topics) do
+    Enum.group_by(topics, fn
+      (%Topic{module: nil}) ->
+        "Default"
+      (%Topic{module: %Module{name: name}}) ->
+        name
+      (%Topic{module: %Ecto.Association.NotLoaded{}}) ->
+        raise "#{__MODULE__}.topics_by_module/1 requires the module to be preloaded onto all topics."
+    end)
   end
 end

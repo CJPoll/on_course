@@ -1,4 +1,4 @@
-<a href=<%= new_course_path(@conn, :new)  %>> New Course </a>
+<%= render "_form.html", changeset: @course_changeset, action: courses_path(@conn, :create) %>
 
 <h2> Enrolled </h2>
 <div>

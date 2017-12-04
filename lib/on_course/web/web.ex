@@ -21,9 +21,9 @@ defmodule OnCourse.Web do
       use Phoenix.Controller, namespace: OnCourse.Web
       import Plug.Conn
       import OnCourse.Web.Router.Helpers
+      alias OnCourse.Web.Router.Helpers, as: Path
       import OnCourse.Web.Gettext
       alias OnCourse.Web.ErrorView
-
       alias OnCourse.Accounts
       alias OnCourse.Accounts.User
       alias OnCourse.Web.Endpoint

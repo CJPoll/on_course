@@ -1,5 +1,5 @@
 alias OnCourse.Accounts.User
-alias OnCourse.Courses.{Course, Topic}
+alias OnCourse.Courses.{Course, Module, Topic}
 alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
 alias OnCourse.Repo
 
@@ -17,10 +17,17 @@ course =
     owner_id: admin.id
   })
 
+module =
+  Repo.insert!(%Module{
+    name: "Coolness Module",
+    course_id: course.id
+  })
+
 topic =
   Repo.insert!(%Topic{
     name: "Coolness",
-    course_id: course.id
+    course_id: course.id,
+    module_id: module.id
   })
 
 category_1 =

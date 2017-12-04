@@ -33,6 +33,7 @@ defmodule OnCourse.Web.Router do
 
     get "/courses/:course_id/topics/new", Topic.Controller, :new, as: :new_topic
     post "/courses/:course_id/topics", Topic.Controller, :create, as: :topics
+    post "/courses/:course_id/modules", Course.Controller, :create_module, as: :modules
 
     get "/topics/:topic_id", Topic.Controller, :show, as: :topic
     post "/topics/:topic_id/categories", Category.Controller, :create, as: :categories

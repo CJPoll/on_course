@@ -1,9 +1,6 @@
 <%= form_for @changeset, @action, [method: :post, csrf_token: true], fn(f) -> %>
   <fieldset>
-    <legend>Add Topic</legend>
-    <label>Module</label>
-    <%= select(f, :module_id, Enum.map(@modules, &({&1.name, &1.id}))) %>
-
+    <legend>Add Module</legend>
     <label>Name</label>
     <%= text_input(f, :name, autofocus: true, class: "wide") %>
 

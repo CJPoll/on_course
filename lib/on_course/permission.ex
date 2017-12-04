@@ -1,6 +1,6 @@
 defmodule OnCourse.Permission do
   alias OnCourse.Accounts.User
-  alias OnCourse.Courses.{Course, Topic}
+  alias OnCourse.Courses.{Course, Module, Topic}
   alias OnCourse.Quiz
   alias OnCourse.Quiz.Category
   alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
@@ -12,6 +12,7 @@ defmodule OnCourse.Permission do
   @type resource ::
     Course.t
     | {Course.t, Topic}
+    | {Course.t, Module}
     | Topic.t
     | {Topic.t, Quiz}
     | {Topic.t, Category}
@@ -37,6 +38,10 @@ defmodule OnCourse.Permission do
     course_ids = Enum.map(user.courses, &(&1.id))
 
     id in course_ids
+  end
+
+  def can?(%User{} = user, :create, {%Course{} = course, Module}) do
+    owns?(user, course)
   end
 
   def can?(%User{} = user, :create, {%Topic{id: id}, Category}) do
@@ -153,7 +158,7 @@ defmodule OnCourse.Permission do
     if Repo.one(q), do: true, else: false
   end
 
-  @spec owns?(User.t, Topic.t) :: boolean
+  @spec owns?(User.t, Topic.t | Course.t) :: boolean
   defp owns?(%User{id: user_id}, %Topic{id: topic_id}) do
     q =
       from u in User,
@@ -162,6 +167,17 @@ defmodule OnCourse.Permission do
         where: t.id == ^topic_id,
         where: u.id == ^user_id,
         select: t.id
+
+    if Repo.one(q), do: true, else: false
+  end
+
+  defp owns?(%User{id: user_id}, %Course{id: course_id}) do
+    q =
+      from u in User,
+        inner_join: c in Course, on: c.owner_id == u.id,
+        where: u.id == ^user_id,
+        where: c.id == ^course_id,
+        select: c.id
 
     if Repo.one(q), do: true, else: false
   end

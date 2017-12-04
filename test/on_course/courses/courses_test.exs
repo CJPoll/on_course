@@ -6,6 +6,8 @@ defmodule OnCourse.Courses.Test do
 
   @test_module OnCourse.Courses
 
+  doctest @test_module
+
   setup do
     course_params = %{name: "My Course"}
     topic_params = %{name: "Topic I"}

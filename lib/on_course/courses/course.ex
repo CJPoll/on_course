@@ -1,10 +1,8 @@
 defmodule OnCourse.Courses.Course do
-  use Ecto.Schema
-  import Ecto.{Changeset, Query}
-  alias OnCourse.Courses.{Course, Topic}
-  alias OnCourse.Accounts.User
+  use OnCourse.Model
 
-  @type id :: String.t | pos_integer
+  alias OnCourse.Courses.{Course, Module, Topic}
+  alias OnCourse.Accounts.User
 
   @type params :: %{
     name: String.t
@@ -17,6 +15,7 @@ defmodule OnCourse.Courses.Course do
     many_to_many :enrollments, OnCourse.Accounts.User, join_through: "courses_enrollments"
 
     has_many :topics, Topic
+    has_many :modules, Module
 
     timestamps()
   end
@@ -54,5 +53,26 @@ defmodule OnCourse.Courses.Course do
   @spec owner(Ecto.Changeset.t, User.t) :: Ecto.Changeset.t
   def owner(%Ecto.Changeset{} = cs, %User{} = owner) do
     put_assoc(cs, :owner, owner)
+  end
+
+  @spec with_topics(Ecto.Queryable.t) :: Ecto.Query.t
+  def with_topics(query) do
+    from c in query,
+      left_join: t in Topic, on: t.course_id == c.id,
+      left_join: m in Module, on: t.module_id == m.id,
+      preload: [topics: {t, module: m}]
+  end
+
+  @spec with_modules(Ecto.Queryable.t) :: Ecto.Query.t
+  def with_modules(query) do
+    from c in query,
+      left_join: m in Module, on: m.course_id == c.id,
+      preload: [modules: m]
+  end
+
+  @spec with_id(Ecto.Queryable.t, id) :: Ecto.Query.t
+  def with_id(query, id) do
+    from c in query,
+      where: c.id == ^id
   end
 end

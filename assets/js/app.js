@@ -13,17 +13,6 @@
 // to also remove its path from "config.paths.watched".
 import "phoenix_html";
 
-function contentLoaded() {
-    const elmDiv = document.getElementById('quiz-mount');
-
-    if (elmDiv) {
-        const quizId = window.quizId;
-        const app = Elm.Quiz.embed(elmDiv, {quizId: quizId, userId: window.userId});
-    }
-}
-
-document.addEventListener('DOMContentLoaded', contentLoaded);
-
 // Import local files
 //
 // Local files can be imported directly using relative

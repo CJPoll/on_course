@@ -4,7 +4,7 @@ defmodule OnCourse.Repo.Migrations.CreateOnCourse.Quiz.Category do
   def change do
     create table(:quiz_categories) do
       add :name, :string, null: false
-      add :topic_id, references(:course_topics, on_delete: :delete_all), null: false
+      add :topic_id, references(:courses_topics, on_delete: :delete_all), null: false
 
       timestamps()
     end

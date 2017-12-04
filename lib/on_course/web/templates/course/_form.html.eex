@@ -1,8 +1,10 @@
 <%= form_for @changeset, @action, [method: :post, csrf_token: true], fn(f) -> %>
   <fieldset>
-    <legend>Name</legend>
-    <%= text_input(f, :name, autofocus: true, class: "wide") %>
-  </fieldset>
+    <legend>Add Course</legend>
 
-  <%= submit "Submit" %>
+    <label>Name</label>
+    <%= text_input(f, :name, autofocus: true, class: "wide") %>
+
+    <%= submit "Submit" %>
+  </fieldset>
 <% end %>

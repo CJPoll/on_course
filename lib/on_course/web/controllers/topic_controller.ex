@@ -20,13 +20,13 @@ defmodule OnCourse.Web.Topic.Controller do
       Permission.can?(conn.assigns.current_user, :create, {course, Topic}) ->
         case Courses.add_topic(course, topic_params) do
           {:ok, %Topic{} = topic} ->
-            topic =
-              topic
-              |> Repo.preload(:categories)
-              |> Repo.preload(:prompt_questions)
-            render(conn, "show.html", topic: topic)
+            conn
+            |> put_flash(:success, "Created topic #{topic.name}")
+            |> redirect(to: Path.course_path(Endpoint, :show, course))
           {:error, cs} ->
-            render(conn, "new.html", changeset: cs)
+            conn
+            |> put_flash(:error, "Creating topic failed: #{inspect Ectoplasm.errors_on(cs)}")
+            |> redirect(to: Path.course_path(Endpoint, :show, course))
         end
       true->
         render(conn, ErrorView, "403.html", [])
