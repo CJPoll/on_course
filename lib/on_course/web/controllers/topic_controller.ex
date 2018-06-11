@@ -49,10 +49,11 @@ defmodule OnCourse.Web.Topic.Controller do
 
   def show(%Plug.Conn{} = conn, %{"topic_id" => topic_id}) do
     topic =
-      topic_id
-      |> Courses.topic
-      |> Repo.preload(:categories)
-      |> Repo.preload(:prompt_questions)
+      Topic
+      |> Topic.with_id(topic_id)
+      |> Topic.preload_categories
+      |> Topic.preload_prompt_questions
+      |> Repo.one
 
     cond do
       topic == nil ->

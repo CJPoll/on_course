@@ -2,7 +2,7 @@ defmodule OnCourse.Courses.Topic do
   use OnCourse.Model
 
   alias OnCourse.Courses.{Course, Module}
-  alias OnCourse.Quiz.Category
+  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
 
   @type params :: %{
     :name => String.t,
@@ -14,8 +14,8 @@ defmodule OnCourse.Courses.Topic do
 
     belongs_to :course, Course
     belongs_to :module, Module
-    has_many :categories, OnCourse.Quiz.Category
-    has_many :prompt_questions, OnCourse.Quiz.PromptQuestion
+    has_many :categories, Category
+    has_many :prompt_questions, PromptQuestion
 
     timestamps()
   end
@@ -45,5 +45,25 @@ defmodule OnCourse.Courses.Topic do
   @spec module(Ecto.Changeset.t, Module.t) :: Ecto.Changeset.t
   def module(%Ecto.Changeset{} = cs, %Module{} = module) do
     put_assoc(cs, :module, module)
+  end
+
+  @spec with_id(Ecto.Queryable.t, id) :: Ecto.Query.t
+  def with_id(q, id) do
+    from t in q, where: t.id == ^id
+  end
+
+  @spec preload_categories(Ecto.Queryable.t) :: Ecto.Query.t
+  def preload_categories(q) do
+    from t in q,
+      left_join: c in Category, on: c.topic_id == t.id,
+      left_join: ci in CategoryItem, on: ci.category_id == c.id,
+      preload: [categories: {c, category_items: ci}]
+  end
+
+  @spec preload_prompt_questions(Ecto.Queryable.t) :: Ecto.Query.t
+  def preload_prompt_questions(q) do
+    from t in q,
+      left_join: pq in PromptQuestion, on: pq.topic_id == t.id,
+      preload: [prompt_questions: pq]
   end
 end
