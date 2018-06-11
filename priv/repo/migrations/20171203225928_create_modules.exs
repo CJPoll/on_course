@@ -6,7 +6,7 @@ defmodule OnCourse.Repo.Migrations.CreateModules do
       add :name, :string
       add :course_id, references(:courses_courses, on_delete: :delete_all), null: false
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     alter table(:courses_topics) do

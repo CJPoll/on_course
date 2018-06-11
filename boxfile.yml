@@ -1,37 +1,17 @@
 run.config:
   engine: elixir
 
-  engine.config:
-    runtime: elixir-1.5
-    erlang_runtime: erlang-20.1
-
   dev_packages:
     - nodejs
-    - inotify-tools # For hot code reloading
+    - inotify-tools
 
-  # cache node_modules
   cache_dirs:
     - assets/node_modules
 
-  # add node_module bins to the $PATH
   extra_path_dirs:
     - /app/assets/node_modules/.bin
 
-  # enable the filesystem watcher
   fs_watch: true
-
-  build_triggers:
-    - mix.exs
-    - mix.lock
-    - config/dev.exs
-    - config/prod.exs
-    - assets/brunch-config.js
-    - assets/package.json
-    - assets/package-lock.json
-
-  extra_steps:
-    - MIX_ENV=test mix dialyzer --plt
-
 
 data.db:
   image: nanobox/postgresql

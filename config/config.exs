@@ -9,10 +9,29 @@ use Mix.Config
 config :on_course,
   ecto_repos: [OnCourse.Repo]
 
+dev_environment? =
+  fn() ->
+    case System.get_env("DEV_ENVIRONMENT") do
+      "true" -> true
+      _ -> false
+    end
+  end
+
 watchers =
-  if System.get_env("MIX_ENV") == "dev" do
+  if dev_environment?.() do
     [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
             cd: Path.expand("../assets", __DIR__)]]
+  else
+    []
+  end
+
+live_reload =
+  if dev_environment?.() do
+    [patterns: [
+        ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
+        ~r{priv/gettext/.*(po)$},
+        ~r{lib/on_course/web/views/.*(ex)$},
+        ~r{lib/on_course/web/templates/.*(eex)$}]]
   else
     []
   end
@@ -21,14 +40,19 @@ watchers =
 config :on_course, OnCourse.Web.Endpoint,
   url: [host: {:system, "HOST"}, port: {:system, "PORT"}],
   http: [port: {:system, "PORT"}],
-  debug_errors: System.get_env("MIX_ENV") == "dev",
-  code_reloader: System.get_env("MIX_ENV") == "dev",
-  check_origin: System.get_env("MIX_ENV") == "prod",
+  debug_errors: dev_environment?.(),
+  code_reloader: dev_environment?.(),
+  check_origin: !dev_environment?.(),
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: OnCourse.Web.ErrorView, accepts: ~w(html json)],
   watchers: watchers,
   pubsub: [name: OnCourse.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+           adapter: Phoenix.PubSub.PG2],
+  live_reload: live_reload
+
+if dev_environment?.() do
+  config :phoenix, :stacktrace_depth, 20
+end
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -51,7 +75,7 @@ config :guardian, Guardian,
   ttl: { 30, :days  },
   allowed_drift: 2000,
   verify_issuer: true, # optional
-  secret_key: "gQfrBbbYqTmQ9mlYJPMGOs4veWCjb4nbShci6qAcVfaB9VNSZohuZ2BsfwRykN10",
+  secret_key: System.get_env("SECRET_KEY"),
   serializer: OnCourse.GuardianSerializer
 
 config :on_course, OnCourse.Repo,
@@ -60,8 +84,4 @@ config :on_course, OnCourse.Repo,
   password: System.get_env("DATA_DB_PASS"),
   hostname: System.get_env("DATA_DB_HOST"),
   database: System.get_env("DATA_DB_NAME"),
-  pool_size: 10
-
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+  pool_size: 2

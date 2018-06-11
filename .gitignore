@@ -32,3 +32,5 @@ npm-debug.log
 assets/quiz/elm-stuff
 assets/quiz/src/elm-stuff
 tags
+.env
+.env.*

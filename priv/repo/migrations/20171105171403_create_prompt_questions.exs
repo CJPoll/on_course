@@ -8,7 +8,7 @@ defmodule OnCourse.Repo.Migrations.CreatePromptQuestions do
 
       add :topic_id, references(:courses_topics, on_delete: :delete_all), null: false
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create index(:quiz_prompt_questions, [:prompt])

@@ -14,7 +14,8 @@ defmodule OnCourse.Web.Auth.Controller do
 
     with {:ok, %User{} = user} <- Accounts.upsert_user(%User{}, data) do
       conn
-      |> Guardian.Plug.sign_in(user)
+      |> IO.inspect
+      |> Guardian.Plug.sign_in(user |> IO.inspect)
       |> redirect(to: enrolled_courses_path(Endpoint, :enrolled))
     else
       {:error, cs} -> send_resp(conn, 500, "Update failed: #{inspect cs.errors}")

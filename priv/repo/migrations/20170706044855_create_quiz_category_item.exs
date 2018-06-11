@@ -6,7 +6,7 @@ defmodule OnCourse.Repo.Migrations.CreateOnCourse.Quiz.CategoryItem do
       add :name, :string, null: false
       add :category_id, references(:quiz_categories, on_delete: :delete_all), null: false
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create index(:category_items, [:category_id])

@@ -6,7 +6,7 @@ defmodule OnCourse.Repo.Migrations.CreateOnCourse.Courses.Course do
       add :name, :string, null: false
       add :owner_id, references(:accounts_users, on_delete: :delete_all), null: false
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create index(:courses_courses, [:owner_id])

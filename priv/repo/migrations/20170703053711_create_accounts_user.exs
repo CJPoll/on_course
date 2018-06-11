@@ -7,7 +7,7 @@ defmodule OnCourse.Repo.Migrations.CreateOnCourse.Accounts.User do
       add :avatar, :string
       add :handle, :string
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create unique_index(:accounts_users, [:email])

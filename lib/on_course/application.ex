@@ -6,7 +6,7 @@ defmodule OnCourse.Application do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    required(["HOST", "PORT", "SECRET_KEY_BASE", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"])
+    required(["HOST", "PORT", "SECRET_KEY_BASE", "SECRET_KEY", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"])
 
     children = [
       supervisor(OnCourse.Repo, []),
