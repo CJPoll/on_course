@@ -1,0 +1,17 @@
+<%= @question.prompt %>
+
+<fieldset>
+  <%= case @responses do %>
+    <% [] -> %>
+      <input type="hidden" name="responses[]" value="ok" autofocus />
+    <% [_response] -> %>
+      <label>
+        Correct Answer:
+      </label>
+      <%= for answer <- @question.correct_answer do %>
+        <p>
+          <%= answer %>
+        </p>
+      <% end %>
+  <% end %>
+</fieldset>

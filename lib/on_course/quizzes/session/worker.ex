@@ -1,11 +1,11 @@
-defmodule OnCourse.Quiz.Session.Worker do
+defmodule OnCourse.Quizzes.Session.Worker do
   use GenStateMachine, handle_event_function: true, state_enter: false
 
   require Logger
 
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.Topic
-  alias OnCourse.Quiz.{Question, Session}
+  alias OnCourse.Quizzes.{Question, Session}
 
   defstruct [:pid]
   @type t :: %__MODULE__{}

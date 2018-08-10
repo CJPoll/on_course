@@ -1,6 +1,5 @@
 run.config:
   engine: elixir
-
   dev_packages:
     - nodejs
     - inotify-tools
@@ -14,7 +13,7 @@ run.config:
   fs_watch: true
 
 data.db:
-  image: nanobox/postgresql
+  image: nanobox/postgresql:9.6
 
 web.main:
   start: mix phx.server

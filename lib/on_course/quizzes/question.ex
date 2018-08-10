@@ -1,5 +1,5 @@
-defmodule OnCourse.Quiz.Question do
-  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
+defmodule OnCourse.Quizzes.Question do
+  alias OnCourse.Quizzes.{Category, CategoryItem, MemoryQuestion, PromptQuestion}
   @type choice :: String.t
   @type question_type ::
     {:multiple_choice, [choice]}
@@ -55,6 +55,14 @@ defmodule OnCourse.Quiz.Question do
       correct_answers: [],
       missing_answers: [to_string(correct_answer)],
       incorrect_answers: [answer]
+    }
+  end
+
+  def review(%__MODULE__{question_type: :hidden, correct_answer: correct_answer}, _) do
+    %{
+      correct_answers: correct_answer,
+      missing_answers: [],
+      incorrect_answers: []
     }
   end
 
@@ -125,12 +133,22 @@ defmodule OnCourse.Quiz.Question do
       question_type: :text_input
     }
   end
+
+  def from_memory_question(%MemoryQuestion{} = q) do
+    %__MODULE__{
+      correct_answer: Enum.map(q.memory_answers, fn(%{text: answer}) -> answer end),
+      prompt: q.prompt,
+      question_type: :hidden
+    } |> IO.inspect
+  end
 end
 
-defimpl Poison.Encoder, for: OnCourse.Quiz.Question do
-  def encode(%OnCourse.Quiz.Question{} = question, _options) do
+defimpl Poison.Encoder, for: OnCourse.Quizzes.Question do
+  def encode(%OnCourse.Quizzes.Question{} = question, _options) do
     map =
       case question.question_type do
+        :hidden ->
+          %{"prompt" => question.prompt, "question_type" => "hidden"}
         :text_input ->
           %{"prompt" => question.prompt, "question_type" => "text_input"}
         :true_false ->

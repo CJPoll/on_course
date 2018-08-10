@@ -6,6 +6,8 @@
   <%= case @question.question_type do %>
     <% :text_input -> %>
       <%= render "_text_input.html", question: @question, responses: [] %>
+    <% :hidden -> %>
+      <%= render "_memory_question.html", question: @question, responses: [] %>
     <% :true_false -> %>
       <%= render "_true_false.html", question: @question, responses: [] %>
     <% {:multiple_choice, options} -> %>

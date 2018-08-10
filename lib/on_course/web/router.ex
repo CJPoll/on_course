@@ -38,11 +38,13 @@ defmodule OnCourse.Web.Router do
     get "/topics/:topic_id", Topic.Controller, :show, as: :topic
     post "/topics/:topic_id/categories", Category.Controller, :create, as: :categories
     post "/topics/:topic_id/prompt_questions", PromptQuestion.Controller, :create
+    post "/topics/:topic_id/memory_questions", MemoryQuestion.Controller, :create
     delete "/prompt_questions/:prompt_question_id", PromptQuestion.Controller, :delete
+    delete "/memory_questions/:memory_question_id", MemoryQuestion.Controller, :delete
 
-    get "/topics/:topic_id/quiz", Quiz.Controller, :quiz, as: :ask_question
-    post "/topics/:topic_id/quiz", Quiz.Controller, :quiz, as: :ask_question
-    get "/topics/:topic_id/quiz/next", Quiz.Controller, :next_question, as: :next_question
+    get "/topics/:topic_id/quiz", Quizzes.Controller, :quiz, as: :ask_question
+    post "/topics/:topic_id/quiz", Quizzes.Controller, :quiz, as: :ask_question
+    get "/topics/:topic_id/quiz/next", Quizzes.Controller, :next_question, as: :next_question
     get "/categories/:category_id", Category.Controller, :show, as: :category
     delete "/categories/:category_id", Category.Controller, :delete
 

@@ -1,11 +1,11 @@
-defmodule OnCourse.Quiz.Session.Test do
+defmodule OnCourse.Quizzes.Session.Test do
   use ExUnit.Case
 
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.Topic
-  alias OnCourse.Quiz.{Category, CategoryItem, Question}
+  alias OnCourse.Quizzes.{Category, CategoryItem, Question}
 
-  @test_module OnCourse.Quiz.Session
+  @test_module OnCourse.Quizzes.Session
 
   @user %User{id: 1}
   @topic %Topic{

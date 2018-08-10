@@ -1,9 +1,8 @@
 defmodule OnCourse.Permission do
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.{Course, Module, Topic}
-  alias OnCourse.Quiz
-  alias OnCourse.Quiz.Category
-  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
+  alias OnCourse.Quizzes.Category
+  alias OnCourse.Quizzes.{Category, CategoryItem, MemoryQuestion, PromptQuestion}
   alias OnCourse.Repo
 
   import Ecto.Query, only: [from: 2]
@@ -60,7 +59,15 @@ defmodule OnCourse.Permission do
     owns?(user, topic)
   end
 
+  def can?(%User{} = user, :create, {%Topic{} = topic, MemoryQuestion}) do
+    owns?(user, topic)
+  end
+
   def can?(%User{} = user, :delete, {%Topic{} = topic, PromptQuestion}) do
+    owns?(user, topic)
+  end
+
+  def can?(%User{} = user, :delete, {%Topic{} = topic, MemoryQuestion}) do
     owns?(user, topic)
   end
 

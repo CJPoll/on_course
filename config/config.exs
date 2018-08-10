@@ -5,20 +5,48 @@
 # is restricted to this project.
 use Mix.Config
 
+defmodule Config do
+  def get_env_boolean(env_var, [default: default]) when is_boolean(default) do
+    case System.get_env(env_var) do
+      nil -> default
+      "true" -> true
+      "false" -> false
+      val -> raise "#{env_var} should be a boolean, but got: #{val}"
+    end
+  end
+
+  def get_log_level(env_var) do
+    case System.get_env(env_var) do
+      "debug" -> :debug
+      "info" -> :info
+      "warn" -> :warn
+      "error" -> :error
+      nil -> :info
+      "" -> :info
+      val ->
+        IO.puts("Expected #{env_var} to be a valid log level - got: #{val}")
+        nil
+    end
+  end
+
+  def get_env_int(env_var, default: default) when is_integer(default) do
+    case System.get_env(env_var) do
+      nil -> default
+      val -> String.to_integer(val)
+    end
+  end
+
+  def dev_environment? do
+    get_env_boolean("ON_COURSE_DEV_ENVIRONMENT", default: false) and Mix.env != :test
+  end
+end
+
 # General application configuration
 config :on_course,
   ecto_repos: [OnCourse.Repo]
 
-dev_environment? =
-  fn() ->
-    case System.get_env("DEV_ENVIRONMENT") do
-      "true" -> true
-      _ -> false
-    end
-  end
-
 watchers =
-  if dev_environment?.() do
+  if Config.dev_environment?() do
     [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
             cd: Path.expand("../assets", __DIR__)]]
   else
@@ -26,7 +54,7 @@ watchers =
   end
 
 live_reload =
-  if dev_environment?.() do
+  if Config.dev_environment?() do
     [patterns: [
         ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
         ~r{priv/gettext/.*(po)$},
@@ -40,9 +68,9 @@ live_reload =
 config :on_course, OnCourse.Web.Endpoint,
   url: [host: {:system, "HOST"}, port: {:system, "PORT"}],
   http: [port: {:system, "PORT"}],
-  debug_errors: dev_environment?.(),
-  code_reloader: dev_environment?.(),
-  check_origin: !dev_environment?.(),
+  debug_errors: Config.dev_environment?(),
+  code_reloader: Config.dev_environment?(),
+  check_origin: !Config.dev_environment?(),
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: OnCourse.Web.ErrorView, accepts: ~w(html json)],
   watchers: watchers,
@@ -50,7 +78,7 @@ config :on_course, OnCourse.Web.Endpoint,
            adapter: Phoenix.PubSub.PG2],
   live_reload: live_reload
 
-if dev_environment?.() do
+if Config.dev_environment?() do
   config :phoenix, :stacktrace_depth, 20
 end
 

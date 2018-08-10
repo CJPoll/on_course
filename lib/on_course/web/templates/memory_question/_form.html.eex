@@ -1,0 +1,21 @@
+<form method="post" action="/topics/<%= @topic.id %>/memory_questions">
+  <fieldset>
+    <div>
+      <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>" />
+      <legend>Add Memory Question</legend>
+      <label for="memory_question[prompt]">Prompt</label>
+      <input type="text" name="memory_question[prompt]" />
+
+      <input type="button" onClick="addMemoryAnswer()" value="+ Answer"/>
+    </div>
+
+    <label>Answers</label>
+
+    <div id="memory-answers">
+      <input type="text" name="memory_question[answer][0]" />
+    </div>
+
+    <input type="submit" value="Add" />
+  </fieldset>
+</form>
+

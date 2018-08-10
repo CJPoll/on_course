@@ -1,6 +1,6 @@
 <h2> <%= @category.name %> </h2>
 
-<%= if Permission.can?(@current_user, :create, {@category, OnCourse.Quiz.CategoryItem}) do %>
+<%= if Permission.can?(@current_user, :create, {@category, OnCourse.Quizzes.CategoryItem}) do %>
   <form method="post" action="/categories/<%= @category.id %>/category_items">
     <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>" />
     <label>Add Category Item</label>

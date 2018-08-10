@@ -3,8 +3,8 @@ alias OnCourse.Accounts.User
 alias OnCourse.Courses
 alias OnCourse.Courses.{Course, Module, Topic}
 alias OnCourse.Permission
-alias OnCourse.Quiz
-alias OnCourse.Quiz.{Category, CategoryItem, Question, PromptQuestion}
+alias OnCourse.Quizzes
+alias OnCourse.Quizzes.{Category, CategoryItem, MemoryQuestion, MemoryAnswer, PromptQuestion, Question}
 alias OnCourse.Repo
-alias OnCourse.Quiz.Session.Worker, as: SessionWorker
+alias OnCourse.Quizzes.Session.Worker, as: SessionWorker
 import Ecto.Query

@@ -1,6 +1,6 @@
 alias OnCourse.Accounts.User
 alias OnCourse.Courses.{Course, Module, Topic}
-alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
+alias OnCourse.Quizzes.{Category, CategoryItem, MemoryAnswer, MemoryQuestion, PromptQuestion}
 alias OnCourse.Repo
 
 admin =
@@ -65,5 +65,15 @@ Repo.insert!(%CategoryItem{
 Repo.insert!(%PromptQuestion{
   prompt: "What is the first letter of the alphabet?",
   correct_answer: "A",
+  topic_id: topic.id
+})
+
+Repo.insert!(%MemoryQuestion{
+  prompt: "Can you count to 3?",
+  memory_answers: [
+    %MemoryAnswer{text: "1"},
+    %MemoryAnswer{text: "2"},
+    %MemoryAnswer{text: "3"}
+  ],
   topic_id: topic.id
 })

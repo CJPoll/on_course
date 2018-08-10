@@ -1,10 +1,10 @@
-defmodule OnCourse.Quiz.Session do
+defmodule OnCourse.Quizzes.Session do
   defstruct [:id, :topic, :user, questions: [], answered_questions: [], last_answer: nil]
 
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.Topic
-  alias OnCourse.Quiz
-  alias OnCourse.Quiz.Question
+  alias OnCourse.Quizzes
+  alias OnCourse.Quizzes.Question
 
   @type response :: :correct | {:incorrect, [Question.answer]} | no_return
   @type id :: String.t
@@ -28,7 +28,7 @@ defmodule OnCourse.Quiz.Session do
   @spec new(User.t, Topic.t) :: t
   def new(%User{} = user, %Topic{} = topic) do
     id = identifier(user, topic)
-    questions = Quiz.questions(topic)
+    questions = Quizzes.questions(topic)
 
     %__MODULE__{
       id: id,

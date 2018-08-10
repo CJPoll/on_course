@@ -1,7 +1,7 @@
-defmodule OnCourse.Quiz.Question.Test do
+defmodule OnCourse.Quizzes.Question.Test do
   use ExUnit.Case
 
-  @test_module OnCourse.Quiz.Question
+  @test_module OnCourse.Quizzes.Question
 
   describe "true_false/2" do
     test "returns a question" do

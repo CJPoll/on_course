@@ -1,4 +1,4 @@
-defmodule OnCourse.Web.Quiz.View do
+defmodule OnCourse.Web.Quizzes.View do
   use OnCourse.Web, :view
 
   @type class :: String.t

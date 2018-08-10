@@ -5,12 +5,16 @@
 <br/>
 <br/>
 
-<%= if Permission.can?(@current_user, :create, {@topic, OnCourse.Quiz.Category}) do %>
+<%= if Permission.can?(@current_user, :create, {@topic, OnCourse.Quizzes.Category}) do %>
   <%= render OnCourse.Web.Category.View, "_form.html", conn: @conn, topic: @topic %>
 <% end %>
 
-<%= if Permission.can?(@current_user, :create, {@topic, OnCourse.Quiz.PromptQuestion}) do %>
+<%= if Permission.can?(@current_user, :create, {@topic, OnCourse.Quizzes.PromptQuestion}) do %>
   <%= render OnCourse.Web.PromptQuestion.View, "_form.html", conn: @conn, topic: @topic %>
+<% end %>
+
+<%= if Permission.can?(@current_user, :create, {@topic, OnCourse.Quizzes.MemoryQuestion}) do %>
+  <%= render OnCourse.Web.MemoryQuestion.View, "_form.html", conn: @conn, topic: @topic %>
 <% end %>
 
 <br/>
@@ -28,7 +32,21 @@
     </li>
   <% end %>
 </ul>
-<br/>
+<ul class="memory_questions">
+  <%= for memory_question <- @topic.memory_questions do %>
+    <li>
+      <%= link "X", to: "/memory_questions/#{memory_question.id}", method: :delete %>
+      <div class="prompt">
+        <%= memory_question.prompt %>
+      </div>
+      <ul>
+        <%= for answer <- memory_question.memory_answers do %>
+          <li> <%= answer.text %> </li>
+        <% end %>
+      </ul>
+    </li>
+  <% end %>
+</ul>
 <ul class="categories">
   <%= for category <- @topic.categories do %>
     <li><%= link category.name, to: "/categories/#{category.id}" %> <%= link "X", to: "/categories/#{category.id}", method: :delete %></li>

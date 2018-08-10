@@ -1,8 +1,8 @@
 defmodule OnCourse.Web.Category.Controller do
   use OnCourse.Web, :controller
 
-  alias OnCourse.{Courses, Quiz}
-  alias OnCourse.Quiz.{Category, CategoryItem}
+  alias OnCourse.{Courses, Quizzes}
+  alias OnCourse.Quizzes.{Category, CategoryItem}
   alias OnCourse.Web.Router.Helpers, as: Path
   alias OnCourse.Web.Endpoint
 
@@ -12,7 +12,7 @@ defmodule OnCourse.Web.Category.Controller do
     topic = Courses.topic(topic_id)
 
     if Permission.can?(conn.assigns.current_user, :create, {topic, Category}) do
-      case Quiz.add_category(topic, category_params) do
+      case Quizzes.add_category(topic, category_params) do
         {:ok, %Category{}} ->
           conn
           |> put_flash(:success, "Category created!")
@@ -26,10 +26,10 @@ defmodule OnCourse.Web.Category.Controller do
   end
 
   def create(%Plug.Conn{} = conn, %{"category_item" => category_item_params, "category_id" => category_id}) do
-    category = Quiz.category(category_id)
+    category = Quizzes.category(category_id)
 
     if Permission.can?(conn.assigns.current_user, :create, {category, CategoryItem}) do
-      case Quiz.add_category_item(category, category_item_params) do
+      case Quizzes.add_category_item(category, category_item_params) do
         {:ok, %CategoryItem{}} ->
           conn
           |> put_flash(:success, "category_item created!")
@@ -45,11 +45,11 @@ defmodule OnCourse.Web.Category.Controller do
   def delete(%Plug.Conn{} = conn, %{"category_id" => category_id}) do
     category =
       category_id
-      |> Quiz.category
-      |> Quiz.with_topic
+      |> Quizzes.category
+      |> Quizzes.with_topic
 
     if Permission.can?(conn.assigns.current_user, :delete, category) do
-      case Quiz.delete(category) do
+      case Quizzes.delete(category) do
         {:ok, %Category{}} ->
           conn
           |> put_flash(:success, "Category deleted!")
@@ -65,8 +65,8 @@ defmodule OnCourse.Web.Category.Controller do
   def show(%Plug.Conn{} = conn, %{"category_id" => category_id}) do
     category =
       category_id
-      |> Quiz.category
-      |> Quiz.with_category_items
+      |> Quizzes.category
+      |> Quizzes.with_category_items
 
     if Permission.can?(conn.assigns.current_user, :view, category) do
       render(conn, "show.html", category: category)

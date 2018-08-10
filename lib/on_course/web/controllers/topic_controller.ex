@@ -53,6 +53,7 @@ defmodule OnCourse.Web.Topic.Controller do
       |> Topic.with_id(topic_id)
       |> Topic.preload_categories
       |> Topic.preload_prompt_questions
+      |> Topic.preload_memory_questions
       |> Repo.one
 
     cond do

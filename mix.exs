@@ -4,7 +4,7 @@ defmodule OnCourse.Mixfile do
   def project do
     [app: :on_course,
      version: "0.0.1",
-     elixir: "~> 1.4",
+     elixir: "~> 1.5",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      start_permanent: Mix.env == :prod,
@@ -26,12 +26,11 @@ defmodule OnCourse.Mixfile do
 
   defp deps do
     [{:cowboy, "~> 1.0"},
-     {:dialyxir, "~> 0.5.0"},
      {:ectoplasm, "~> 0.2.0"},
      {:epa, "~> 0.1.0"},
      {:gettext, "~> 0.11"},
      {:guardian, "~> 0.14.0"},
-     {:phoenix, "~> 1.3.0", override: true},
+     {:phoenix, "~> 1.3.0"},
      {:phoenix_ecto, "~> 3.2"},
      {:phoenix_html, "~> 2.6"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},

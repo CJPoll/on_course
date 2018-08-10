@@ -1,7 +1,7 @@
-defmodule OnCourse.Quiz.PromptQuestion.Test do
+defmodule OnCourse.Quizzes.PromptQuestion.Test do
   use OnCourse.DataCase
 
-  @test_module OnCourse.Quiz.PromptQuestion
+  @test_module OnCourse.Quizzes.PromptQuestion
   @repo_module OnCourse.Repo
 
   setup do

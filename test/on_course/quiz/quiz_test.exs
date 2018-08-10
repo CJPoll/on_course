@@ -1,12 +1,12 @@
-defmodule OnCourse.QuizTest do
+defmodule OnCourse.QuizzesTest do
   use OnCourse.DataCase
 
-  @test_module OnCourse.Quiz
+  @test_module OnCourse.Quizzes
 
   alias OnCourse.{Accounts, Courses}
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.{Course, Topic}
-  alias OnCourse.Quiz.{Category, CategoryItem}
+  alias OnCourse.Quizzes.{Category, CategoryItem}
 
   setup do
     {:ok, %User{} = owner} =

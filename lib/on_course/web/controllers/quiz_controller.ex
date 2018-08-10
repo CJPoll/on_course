@@ -1,10 +1,10 @@
-defmodule OnCourse.Web.Quiz.Controller do
+defmodule OnCourse.Web.Quizzes.Controller do
   use OnCourse.Web, :controller
 
   require Logger
 
-  alias OnCourse.Quiz
-  alias OnCourse.Quiz.Session.Worker, as: SessionWorker
+  alias OnCourse.Quizzes
+  alias OnCourse.Quizzes.Session.Worker, as: SessionWorker
   alias OnCourse.Courses.Topic
 
   plug Guardian.Plug.EnsureResource
@@ -13,7 +13,7 @@ defmodule OnCourse.Web.Quiz.Controller do
 
   def next_question(conn, %{"topic_id" => topic_id}) do
     quiz_data(conn, topic_id, fn(conn, _topic, session) ->
-      Quiz.next_question(session)
+      Quizzes.next_question(session)
       redirect(conn, to: "/topics/#{topic_id}/quiz")
     end)
   end
@@ -21,14 +21,14 @@ defmodule OnCourse.Web.Quiz.Controller do
   def quiz(%Plug.Conn{} = conn, %{"topic_id" => topic_id, "responses" => responses}) do
     Logger.debug("#{__MODULE__}.")
     quiz_data(conn, topic_id, fn(conn, topic, session) ->
-      {question, responses} = Quiz.answer(session, responses)
+      {question, responses} = Quizzes.answer(session, responses)
       render(conn, "answer_question.html", topic: topic, question: question, responses: responses)
     end)
   end
 
   def quiz(%Plug.Conn{} = conn, %{"topic_id" => topic_id}) do
     quiz_data(conn, topic_id, fn(conn, topic, session) ->
-      case Quiz.display(session) do
+      case Quizzes.display(session) do
         {:asking, question} ->
           render(conn, "quiz.html", topic: topic, question: question, responses: [])
         {:reviewing, question, responses} ->
@@ -42,7 +42,7 @@ defmodule OnCourse.Web.Quiz.Controller do
 
   @spec quiz_data(Plug.Conn.t, Topic.id, callback) :: Plug.Conn.t
   defp quiz_data(%Plug.Conn{} = conn, topic_id, callback) do
-    topic = Quiz.with_quiz_data(topic_id)
+    topic = Quizzes.with_quiz_data(topic_id)
 
     cond do
       topic == nil ->
@@ -50,14 +50,14 @@ defmodule OnCourse.Web.Quiz.Controller do
       Permission.can?(conn.assigns.current_user, :quiz, topic) ->
         session =
           conn.assigns.current_user
-          |> Quiz.id_token(topic)
-          |> Quiz.find_session
+          |> Quizzes.id_token(topic)
+          |> Quizzes.find_session
 
         quiz =
           case session do
             nil ->
               Logger.debug("============== Starting Session ===============")
-              {:ok, session_worker} = OnCourse.Quiz.start_quiz(conn.assigns.current_user, topic)
+              {:ok, session_worker} = OnCourse.Quizzes.start_quiz(conn.assigns.current_user, topic)
               session_worker
             %SessionWorker{} = session_worker->
               session_worker

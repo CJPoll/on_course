@@ -18,4 +18,17 @@ import "phoenix_html";
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
+window.memory_answer_count = 1;
+
+window.addMemoryAnswer = function() {
+	const div = document.getElementById('memory-answers');
+	const input = document.createElement('input')
+
+	input.type = 'text';
+	input.name = 'memory_question[answer][' + memory_answer_count + ']'
+
+	div.appendChild(input);
+	window.memory_answer_count++;
+}
+
 // import socket from "./socket"

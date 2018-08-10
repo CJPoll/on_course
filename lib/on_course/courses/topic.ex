@@ -2,7 +2,7 @@ defmodule OnCourse.Courses.Topic do
   use OnCourse.Model
 
   alias OnCourse.Courses.{Course, Module}
-  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
+  alias OnCourse.Quizzes.{Category, CategoryItem, MemoryAnswer, MemoryQuestion, PromptQuestion}
 
   @type params :: %{
     :name => String.t,
@@ -16,6 +16,7 @@ defmodule OnCourse.Courses.Topic do
     belongs_to :module, Module
     has_many :categories, Category
     has_many :prompt_questions, PromptQuestion
+    has_many :memory_questions, MemoryQuestion
 
     timestamps()
   end
@@ -65,5 +66,13 @@ defmodule OnCourse.Courses.Topic do
     from t in q,
       left_join: pq in PromptQuestion, on: pq.topic_id == t.id,
       preload: [prompt_questions: pq]
+  end
+
+  @spec preload_memory_questions(Ecto.Queryable.t) :: Ecto.Query.t
+  def preload_memory_questions(q) do
+    from t in q,
+      left_join: mq in MemoryQuestion, on: mq.topic_id == t.id,
+      left_join: ma in MemoryAnswer, on: ma.memory_question_id == mq.id,
+      preload: [memory_questions: {mq, memory_answers: ma}]
   end
 end

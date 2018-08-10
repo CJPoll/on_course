@@ -93,13 +93,7 @@ defmodule OnCourse.Courses do
   @doc """
   Given a list of topics, returns the topics grouped by module name
 
-  iex> topics_by_module([
-    %OnCourse.Courses.Topic{name: "topic1", module: %OnCourse.Courses.Module{name: "module1"}},
-    %OnCourse.Courses.Topic{name: "topic2", module: %OnCourse.Courses.Module{name: "module1"}},
-    %OnCourse.Courses.Topic{name: "topic3", module: %OnCourse.Courses.Module{name: "module1"}},
-    %OnCourse.Courses.Topic{name: "topic4", module: %OnCourse.Courses.Module{name: "module2"}},
-    %OnCourse.Courses.Topic{name: "topic5", module: %OnCourse.Courses.Module{name: "module2"}}
-  ])
+  iex> OnCourse.Courses.topics_by_module([ %OnCourse.Courses.Topic{name: "topic1", module: %OnCourse.Courses.Module{name: "module1"}}, %OnCourse.Courses.Topic{name: "topic2", module: %OnCourse.Courses.Module{name: "module1"}}, %OnCourse.Courses.Topic{name: "topic3", module: %OnCourse.Courses.Module{name: "module1"}}, %OnCourse.Courses.Topic{name: "topic4", module: %OnCourse.Courses.Module{name: "module2"}}, %OnCourse.Courses.Topic{name: "topic5", module: %OnCourse.Courses.Module{name: "module2"}} ])
   %{
     "module1" => [
       %OnCourse.Courses.Topic{name: "topic1", module: %OnCourse.Courses.Module{name: "module1"}},

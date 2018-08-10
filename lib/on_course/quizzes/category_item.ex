@@ -1,7 +1,7 @@
-defmodule OnCourse.Quiz.CategoryItem do
+defmodule OnCourse.Quizzes.CategoryItem do
   use OnCourse.Model
 
-  alias OnCourse.Quiz.Category
+  alias OnCourse.Quizzes.Category
 
   @type name :: String.t
 

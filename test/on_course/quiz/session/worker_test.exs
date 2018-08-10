@@ -1,11 +1,11 @@
-defmodule OnCourse.Quiz.Session.Worker.Test do
+defmodule OnCourse.Quizzes.Session.Worker.Test do
   use ExUnit.Case, async: false
 
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.Topic
-  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion}
+  alias OnCourse.Quizzes.{Category, CategoryItem, PromptQuestion}
 
-  @test_module OnCourse.Quiz.Session.Worker
+  @test_module OnCourse.Quizzes.Session.Worker
 
   describe "start_link/2" do
     setup do

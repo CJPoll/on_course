@@ -1,6 +1,6 @@
 defmodule OnCourse.Web.QuizChannel do
   use OnCourse.Web, :channel
-  alias OnCourse.Quiz.Session.Worker, as: SessionWorker
+  alias OnCourse.Quizzes.Session.Worker, as: SessionWorker
   alias OnCourse.GuardianSerializer
   alias OnCourse.Accounts.User
 

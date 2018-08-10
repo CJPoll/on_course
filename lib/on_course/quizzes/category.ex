@@ -1,7 +1,7 @@
-defmodule OnCourse.Quiz.Category do
+defmodule OnCourse.Quizzes.Category do
   use OnCourse.Model
 
-  alias OnCourse.Quiz.{Category, CategoryItem}
+  alias OnCourse.Quizzes.{Category, CategoryItem}
   alias OnCourse.Courses.Topic
 
   @type name :: String.t
@@ -14,7 +14,7 @@ defmodule OnCourse.Quiz.Category do
     field :name, :string
 
     belongs_to :topic, OnCourse.Courses.Topic
-    has_many :category_items, OnCourse.Quiz.CategoryItem
+    has_many :category_items, OnCourse.Quizzes.CategoryItem
 
     timestamps()
   end

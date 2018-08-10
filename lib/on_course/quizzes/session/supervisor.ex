@@ -1,10 +1,10 @@
-defmodule OnCourse.Quiz.Session.Supervisor do
+defmodule OnCourse.Quizzes.Session.Supervisor do
   use Supervisor
   alias OnCourse.Accounts.User
   alias OnCourse.Courses.Topic
 
-  alias OnCourse.Quiz.Session
-  alias OnCourse.Quiz.Session.Worker
+  alias OnCourse.Quizzes.Session
+  alias OnCourse.Quizzes.Session.Worker
 
   @child Worker
   @type child :: Worker.t

@@ -1,4 +1,4 @@
-defmodule OnCourse.Quiz do
+defmodule OnCourse.Quizzes do
   @moduledoc """
   The boundary for the Quiz system.
   """
@@ -6,9 +6,9 @@ defmodule OnCourse.Quiz do
   import Ecto.Query, warn: false
   alias OnCourse.Repo
 
-  alias OnCourse.Quiz.{Category, CategoryItem, PromptQuestion, Question, Session}
-  alias OnCourse.Quiz.Session.Worker, as: SessionWorker
-  alias OnCourse.Quiz.Session.Supervisor, as: SessionSupervisor
+  alias OnCourse.Quizzes.{Category, CategoryItem, MemoryAnswer, MemoryQuestion, PromptQuestion, Question, Session}
+  alias OnCourse.Quizzes.Session.Worker, as: SessionWorker
+  alias OnCourse.Quizzes.Session.Supervisor, as: SessionSupervisor
   alias OnCourse.Courses.Topic
   alias OnCourse.Accounts.User
 
@@ -51,6 +51,16 @@ defmodule OnCourse.Quiz do
     |> Repo.insert
   end
 
+  @spec add_memory_question(Topic.t, MemoryQuestion.params)
+  :: {:ok, MemoryQuestion.t}
+  | {:error, Ecto.Changeset.t}
+  def add_memory_question(%Topic{} = topic, params) do
+    %MemoryQuestion{}
+    |> MemoryQuestion.changeset(params)
+    |> MemoryQuestion.topic(topic)
+    |> Repo.insert
+  end
+
   @spec category(Category.id) :: Category.t | nil
   def category(category_id) do
     Repo.get(Category, category_id)
@@ -68,8 +78,12 @@ defmodule OnCourse.Quiz do
     Repo.delete(category)
   end
 
-  def delete(%PromptQuestion{} = category) do
-    Repo.delete(category)
+  def delete(%PromptQuestion{} = question) do
+    Repo.delete(question)
+  end
+
+  def delete(%MemoryQuestion{} = question) do
+    Repo.delete(question)
   end
 
   @spec id_token(SessionWorker.t) :: Session.id | nil
@@ -96,10 +110,13 @@ defmodule OnCourse.Quiz do
         left_join: pq in PromptQuestion, on: pq.topic_id == t.id,
         left_join: c in Category, on: c.topic_id == t.id,
         left_join: ci in CategoryItem, on: ci.category_id == c.id,
+        left_join: mq in MemoryQuestion, on: mq.topic_id == t.id,
+        left_join: ma in MemoryAnswer, on: ma.memory_question_id == mq.id,
         where: t.id == ^id,
         preload: [
           prompt_questions: pq,
-          categories: {c, category_items: ci}
+          categories: {c, category_items: ci},
+          memory_questions: {mq, memory_answers: ma}
         ]
 
     Repo.one(q)
@@ -122,8 +139,9 @@ defmodule OnCourse.Quiz do
   def questions(%Topic{} = topic) do
     category_questions = category_questions(topic)
     prompt_questions = Enum.map(topic.prompt_questions, &Question.from_prompt_question/1) 
+    memory_questions = Enum.map(topic.memory_questions, &Question.from_memory_question/1)
 
-    category_questions ++ prompt_questions
+    (category_questions ++ prompt_questions ++ memory_questions)
     |> Enum.shuffle
   end
 
