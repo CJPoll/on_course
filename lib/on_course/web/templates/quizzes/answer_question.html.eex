@@ -1,5 +1,9 @@
 <h1> Quizzing <%= @topic.name %></h1>
 
+<div class="padded">
+  <%= link "Back to Topic", to: topic_path(@conn, :show, @topic) %>
+</div>
+
 <%= case @question.question_type do %>
   <% :hidden -> %>
     <%= render "_memory_question.html", question: @question, responses: @responses %>

@@ -3,6 +3,7 @@
 <div class="padded">
   <%= link "Back to Topic", to: topic_path(@conn, :show, @topic) %>
 </div>
+
 <div>
   <form method="POST" action="/topics/<%= @topic.id %>/quiz">
     <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>">
