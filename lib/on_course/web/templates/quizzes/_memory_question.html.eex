@@ -8,10 +8,12 @@
       <label>
         Correct Answer:
       </label>
-      <%= for answer <- @question.correct_answer do %>
-        <p>
-          <%= answer %>
-        </p>
-      <% end %>
+      <ol>
+        <%= for answer <- @question.correct_answer do %>
+          <li>
+            <%= answer %>
+          </li>
+        <% end %>
+      </ol>
   <% end %>
 </fieldset>

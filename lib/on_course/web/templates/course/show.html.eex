@@ -25,9 +25,10 @@
           <h4><%= module_name %></h4>
           <%= for topic <- Map.get(topics, module_name, []) do %>
             <li>
-              <a href="<%= topic_path(@conn, :show, topic) %>"><%= topic.name %></a>
+              <%= link topic.name, to: topic_path(@conn, :show, topic) %>
+
               <%= if Permission.can?(@current_user, :quiz, topic) do %>
-                <a href="<%= ask_question_path(@conn, :quiz, topic) %>"> Take Quiz </a>
+                <%= link "Take Quiz", to: ask_question_path(@conn, :quiz, topic) %>
               <% end %>
             </li>
           <% end %>

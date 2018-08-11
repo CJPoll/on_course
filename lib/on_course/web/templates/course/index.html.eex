@@ -7,7 +7,7 @@
   <% end %>
   <%= for course <- @enrolled_courses do %>
     <div class="course">
-      <a href="<%= course_path(@conn, :show, course) %>"><%= course.name %></h3>
+      <%= link course.name, to: course_path(@conn, :show, course) %>
     </div>
   <% end %>
 </div>
@@ -17,7 +17,7 @@
 <div>
   <%= for course <- @courses do %>
     <div class="course">
-      <a href="<%= course_path(@conn, :show, course) %>"><%= course.name %></h3>
+      <%= link course.name, to: course_path(@conn, :show, course) %>
     </div>
   <% end %>
 </div>

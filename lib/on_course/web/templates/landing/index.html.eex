@@ -1,1 +1,1 @@
-<a href="/auth/github">Log In</a>
+<%= link "Log In", to: login_path(@conn, :request, "github") %>

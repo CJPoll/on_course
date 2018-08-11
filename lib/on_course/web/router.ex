@@ -54,7 +54,7 @@ defmodule OnCourse.Web.Router do
   scope "/auth", OnCourse.Web do
     pipe_through :browser # Use the default browser stack
 
-    get "/:provider", Auth.Controller, :request
+    get "/:provider", Auth.Controller, :request, as: :login
     get "/:provider/callback", Auth.Controller, :callback
   end
 end

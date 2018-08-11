@@ -1,18 +1,23 @@
 <h1> Quizzing <%= @topic.name %></h1>
 
-<form method="POST" action="/topics/<%= @topic.id %>/quiz">
-  <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>">
+<div class="padded">
+  <%= link "Back to Topic", to: topic_path(@conn, :show, @topic) %>
+</div>
+<div>
+  <form method="POST" action="/topics/<%= @topic.id %>/quiz">
+    <input type="hidden" name="_csrf_token" value="<%= csrf_token(@conn) %>">
 
-  <%= case @question.question_type do %>
-    <% :text_input -> %>
-      <%= render "_text_input.html", question: @question, responses: [] %>
-    <% :hidden -> %>
-      <%= render "_memory_question.html", question: @question, responses: [] %>
-    <% :true_false -> %>
-      <%= render "_true_false.html", question: @question, responses: [] %>
-    <% {:multiple_choice, options} -> %>
-      <%= render "_multiple_choice.html", options: options, question: @question, responses: [] %>
-  <% end %>
+    <%= case @question.question_type do %>
+      <% :text_input -> %>
+        <%= render "_text_input.html", question: @question, responses: [] %>
+      <% :hidden -> %>
+        <%= render "_memory_question.html", question: @question, responses: [] %>
+      <% :true_false -> %>
+        <%= render "_true_false.html", question: @question, responses: [] %>
+      <% {:multiple_choice, options} -> %>
+        <%= render "_multiple_choice.html", options: options, question: @question, responses: [] %>
+    <% end %>
 
-  <input type="submit" value="Submit Answer" />
-</form>
+    <input type="submit" value="Submit Answer" />
+  </form>
+</div>

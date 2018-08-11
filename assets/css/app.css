@@ -10,6 +10,11 @@ html
     box-sizing: inherit;
 }
 
+.padded
+{
+	padding: 8px;
+}
+
 .choice
 {
     padding: 8px;

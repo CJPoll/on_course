@@ -73,6 +73,7 @@ defmodule OnCourse.Courses.Topic do
     from t in q,
       left_join: mq in MemoryQuestion, on: mq.topic_id == t.id,
       left_join: ma in MemoryAnswer, on: ma.memory_question_id == mq.id,
+      order_by: [desc: ma.id],
       preload: [memory_questions: {mq, memory_answers: ma}]
   end
 end

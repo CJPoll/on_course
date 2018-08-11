@@ -1,6 +1,8 @@
 defmodule OnCourse.Web.Quizzes.View do
   use OnCourse.Web, :view
 
+  import OnCourse.Web.Router.Helpers
+
   @type class :: String.t
   @type option :: String.t
   @type responses :: [String.t]
