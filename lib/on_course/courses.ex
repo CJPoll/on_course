@@ -3,20 +3,29 @@ defmodule OnCourse.Courses do
   The boundary for the Courses system.
   """
 
-  import Ecto.Query, warn: false
-  alias OnCourse.Repo
-
-  alias OnCourse.Courses.{Course, Module, Topic}
   alias OnCourse.Accounts.User
+  alias OnCourse.Courses.{Course, Module, Topic}
+  alias OnCourse.{Permission, Repo}
 
-  @spec add_topic(Course.t, Topic.params)
+  @spec add_topic(User.t, Course.t | Course.id, Topic.params)
   :: {:ok, Topic.t}
   | {:error, Ecto.Changeset.t}
-  def add_topic(%Course{} = course, params) do
-    %Topic{}
-    |> Topic.changeset(params)
-    |> Topic.course(course)
-    |> Repo.insert
+  def add_topic(%User{} = user, %Course{} = course, params) do
+    if Permission.can?(user, :create, {course, Topic}) do
+      %Topic{}
+      |> Topic.changeset(params)
+      |> Topic.course(course)
+      |> Repo.insert
+    else
+      {:error, :unauthorized}
+    end
+  end
+
+  def add_topic(%User{} = user, course_id, params) do
+    case __MODULE__.find(course_id) do
+      nil -> {:error, :course_not_found}
+      %Course{} = course -> add_topic(user, course, params)
+    end
   end
 
   @spec add_module(Course.t, Module.params)

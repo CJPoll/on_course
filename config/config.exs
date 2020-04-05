@@ -5,7 +5,7 @@
 # is restricted to this project.
 use Mix.Config
 
-defmodule Config do
+defmodule OnCourse.Config do
   def get_env_boolean(env_var, [default: default]) when is_boolean(default) do
     case System.get_env(env_var) do
       nil -> default
@@ -40,6 +40,8 @@ defmodule Config do
     get_env_boolean("ON_COURSE_DEV_ENVIRONMENT", default: false) and Mix.env != :test
   end
 end
+
+alias OnCourse.Config
 
 # General application configuration
 config :on_course,
@@ -107,9 +109,12 @@ config :guardian, Guardian,
   serializer: OnCourse.GuardianSerializer
 
 config :on_course, OnCourse.Repo,
-  adapter: Ecto.Adapters.Postgres,
   username: System.get_env("DATA_DB_USER"),
   password: System.get_env("DATA_DB_PASS"),
   hostname: System.get_env("DATA_DB_HOST"),
   database: System.get_env("DATA_DB_NAME"),
   pool_size: 2
+
+if Mix.env == :test do
+  import_config "test.exs"
+end

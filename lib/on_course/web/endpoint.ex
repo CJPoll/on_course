@@ -1,7 +1,10 @@
 defmodule OnCourse.Web.Endpoint do
   use Phoenix.Endpoint, otp_app: :on_course
 
-  socket "/socket", OnCourse.Web.UserSocket
+  socket "/socket", OnCourse.Web.UserSocket,
+    websocket: true,
+    longpoll: false
+
 
   # Serve at "/" the static files from "priv/static" directory.
   #

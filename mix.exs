@@ -25,16 +25,19 @@ defmodule OnCourse.Mixfile do
   defp elixirc_paths(_),     do: ["lib"]
 
   defp deps do
-    [{:cowboy, "~> 1.0"},
+    [{:plug_cowboy, "~> 2.1"},
+     {:ecto_sql, "~> 3.2"},
      {:ectoplasm, "~> 0.2.0"},
      {:epa, "~> 0.1.0"},
      {:gettext, "~> 0.11"},
      {:guardian, "~> 0.14.0"},
-     {:phoenix, "~> 1.3.0"},
-     {:phoenix_ecto, "~> 3.2"},
-     {:phoenix_html, "~> 2.6"},
-     {:phoenix_live_reload, "~> 1.0", only: :dev},
+     {:jason, "~> 1.1.2"},
+     {:phoenix, "~> 1.4.0"},
+     {:phoenix_ecto, "~> 4.1"},
+     {:phoenix_html, "~> 2.13"},
+     {:phoenix_live_reload, "~> 1.2", only: :dev},
      {:phoenix_pubsub, "~> 1.0"},
+     {:poison, "~> 1.3.0"},
      {:postgrex, ">= 0.0.0"},
      {:ueberauth_github, "~> 0.4"},
      {:uuid, "~> 1.1.0"}
@@ -44,7 +47,7 @@ defmodule OnCourse.Mixfile do
   defp aliases do
     ["ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
      "ecto.reset": ["ecto.drop", "ecto.setup"],
-     "compile": ["compile --warnings-as-errors"],
-     "test": ["ecto.create --quiet", "ecto.migrate", "test", "dialyzer --halt-exit-status"]]
+     compile: ["compile --warnings-as-errors"],
+     test: ["ecto.create --quiet", "ecto.migrate", "test", "dialyzer --halt-exit-status"]]
   end
 end

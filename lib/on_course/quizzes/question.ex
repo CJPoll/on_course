@@ -1,5 +1,6 @@
 defmodule OnCourse.Quizzes.Question do
   alias OnCourse.Quizzes.{Category, CategoryItem, MemoryQuestion, PromptQuestion}
+
   @type choice :: String.t
   @type question_type ::
     {:multiple_choice, [choice]}

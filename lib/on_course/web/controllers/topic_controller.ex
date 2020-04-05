@@ -14,22 +14,15 @@ defmodule OnCourse.Web.Topic.Controller do
   def create(%Plug.Conn{} = conn, %{"course_id" => course_id, "topic" => topic_params}) do
     course = Courses.find(course_id)
 
-    cond do
-      course == nil ->
+    case Courses.add_topic(conn.assigns.current_user, course_id, topic_params) do
+      {:error, :course_not_found} ->
         render(conn, ErrorView, "404.html", [])
-      Permission.can?(conn.assigns.current_user, :create, {course, Topic}) ->
-        case Courses.add_topic(course, topic_params) do
-          {:ok, %Topic{} = topic} ->
-            conn
-            |> put_flash(:success, "Created topic #{topic.name}")
-            |> redirect(to: Path.course_path(Endpoint, :show, course))
-          {:error, cs} ->
-            conn
-            |> put_flash(:error, "Creating topic failed: #{inspect Ectoplasm.errors_on(cs)}")
-            |> redirect(to: Path.course_path(Endpoint, :show, course))
-        end
-      true->
+      {:error, :unauthorized} ->
         render(conn, ErrorView, "403.html", [])
+      {:ok, %Topic{} = topic} ->
+        conn
+        |> put_flash(:success, "Created topic #{topic.name}")
+        |> redirect(to: Path.course_path(Endpoint, :show, course))
     end
   end
 

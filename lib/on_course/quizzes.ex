@@ -138,7 +138,7 @@ defmodule OnCourse.Quizzes do
   @spec questions(Topic.t) :: [Question.t]
   def questions(%Topic{} = topic) do
     category_questions = category_questions(topic)
-    prompt_questions = Enum.map(topic.prompt_questions, &Question.from_prompt_question/1) 
+    prompt_questions = Enum.map(topic.prompt_questions, &Question.from_prompt_question/1)
     memory_questions = Enum.map(topic.memory_questions, &Question.from_memory_question/1)
 
     (category_questions ++ prompt_questions ++ memory_questions)

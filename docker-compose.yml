@@ -1,0 +1,28 @@
+version: '3'
+
+volumes:
+  web_build:
+    driver: local
+  web_deps:
+    driver: local
+
+services:
+  web:
+    build: .
+    ports:
+      - "4000:4000"
+    volumes:
+      - ".:/app"
+      - "web_build:/app/_build"
+      - "web_deps:/app/deps"
+    depends_on:
+      - postgres
+    command: mix phx.server
+    env_file:
+      - .env.dev
+  postgres:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - "/var/docker/volumes/on_course/postgresql/data:/var/lib/postgresql/data"
